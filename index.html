@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Production OLDA 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .apple-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .step { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
+        .step.active { display: block; opacity: 1; transform: translateY(0); }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        input, select, textarea { border: none !important; background: #f5f5f7 !important; border-radius: 12px !important; padding: 16px !important; outline: none !important; }
+        .btn-next { background: #0071e3; transition: transform 0.2s active; }
+        .btn-next:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-[#f5f5f7] flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md p-6">
+        <header class="text-center mb-10">
+            <h1 class="text-2xl font-semibold tracking-tight">Production OLDA</h1>
+            <p class="text-gray-500 text-sm">Collection 2026</p>
+        </header>
+
+        <div class="glass bg-white rounded-[2rem] p-8 shadow-2xl shadow-gray-200/50 apple-card">
+            <form id="mainForm">
+                
+                <div class="step active" id="step1">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2 block">Étape 1 sur 3</span>
+                    <h2 class="text-2xl font-semibold mb-6">Le Client</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="client" placeholder="Nom complet" class="w-full text-lg" required>
+                        <input type="tel" id="tel" placeholder="N° de téléphone" class="w-full text-lg" required>
+                    </div>
+                    <button type="button" onclick="goToStep(2)" class="btn-next w-full mt-8 text-white font-medium py-4 rounded-full text-lg">Continuer</button>
+                </div>
+
+                <div class="step" id="step2">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2 block">Étape 2 sur 3</span>
+                    <h2 class="text-2xl font-semibold mb-6">La Pièce</h2>
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" class="flex-1 py-3 rounded-xl bg-gray-100 font-medium hover:bg-black hover:text-white transition">Homme</button>
+                        <button type="button" class="flex-1 py-3 rounded-xl bg-gray-100 font-medium hover:bg-black hover:text-white transition">Femme</button>
+                    </div>
+                    <select id="modele" class="w-full text-lg mb-4">
+                        <option value="">Sélectionner le modèle</option>
+                        <option value="H-Gero1">H-Gero1 — 35€</option>
+                        <option value="H-Iconic">H-Iconic — 39€</option>
+                        <option value="F-Gero1">F-Gero1 — 35€</option>
+                    </select>
+                    <div class="flex items-center justify-between mt-8">
+                        <button type="button" onclick="goToStep(1)" class="text-gray-400 font-medium">Retour</button>
+                        <button type="button" onclick="goToStep(3)" class="btn-next px-8 py-3 text-white rounded-full font-medium">Suivant</button>
+                    </div>
+                </div>
+
+                <div class="step" id="step3">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2 block">Étape 3 sur 3</span>
+                    <h2 class="text-2xl font-semibold mb-6">Atelier</h2>
+                    <textarea id="technique" placeholder="Détails (ex: Logo dos 25cm, RAL 9010...)" class="w-full text-lg mb-4" rows="3"></textarea>
+                    <label class="text-xs text-gray-400 ml-2 mb-1 block">Date de livraison</label>
+                    <input type="date" id="delai" class="w-full text-lg mb-6">
+                    
+                    <div class="flex items-center justify-between">
+                        <button type="button" onclick="goToStep(2)" class="text-gray-400 font-medium">Retour</button>
+                        <button type="submit" class="bg-black text-white px-8 py-3 rounded-full font-medium">Valider</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function goToStep(num) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            const nextStep = document.getElementById('step' + num);
+            nextStep.classList.add('active');
+        }
+
+        document.getElementById('mainForm').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Commande envoyée à Production OLDA 2026 !');
+        };
+    </script>
+</body>
+</html>
