@@ -373,56 +373,60 @@
         .upload-pill .x:hover { background: rgba(255,59,48,0.14); }
 
         /* ═══════════════════════════════════
-           ORDER INFO ROWS (iCloud Settings Style)
+           iOS SETTINGS TABLE
            ═══════════════════════════════════ */
-        .order-rows {
-            padding: 0;
+        .stbl {
+            overflow: hidden;
         }
-        .order-row {
+        .stbl-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            min-height: 48px;
+            min-height: 44px;
+            padding: 0 16px;
         }
-        .order-row + .order-row {
-            border-top: 0.5px solid var(--separator);
+        .stbl-row + .stbl-row {
+            /* Inset separator — starts after the label zone, exactly like iOS */
+            box-shadow: inset 16px 0 0 0 var(--card), 0 -0.33px 0 0 var(--separator);
+            /* Alternative: real border with margin trick */
         }
-        .order-row .or-label {
-            font-size: 15px;
-            font-weight: 400;
+        .stbl-label {
+            font-size: 17px;
             color: var(--text-1);
-            letter-spacing: -0.022em;
+            min-width: 110px;
             flex-shrink: 0;
+            padding: 12px 0;
         }
-        .order-row .or-value {
-            font-size: 15px;
-            font-weight: 400;
+        .stbl-value {
+            font-size: 17px;
             color: var(--text-2);
-            letter-spacing: -0.022em;
             text-align: right;
+            flex: 1;
+            padding: 12px 0;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-        .order-row .or-value.mono {
-            font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
-            font-size: 13px;
-            color: var(--text-3);
+        .stbl-value.mono {
+            font-family: 'SF Mono', ui-monospace, 'Menlo', monospace;
+            font-size: 15px;
+            letter-spacing: -0.01em;
         }
-        .order-row .or-input {
-            background: transparent;
+        .stbl-input {
+            background: none;
             border: none;
             outline: none;
-            font-size: 15px;
-            font-weight: 400;
+            font-size: 17px;
             color: var(--text-2);
-            letter-spacing: -0.022em;
             font-family: inherit;
+            letter-spacing: inherit;
             text-align: right;
-            padding: 0;
-            width: 100%;
-            max-width: 200px;
+            flex: 1;
+            padding: 12px 0;
+            min-width: 0;
         }
-        .order-row .or-input::placeholder { color: var(--text-3); }
-        .order-row .or-input:focus { color: var(--text-1); }
+        .stbl-input::placeholder { color: var(--text-3); }
+        .stbl-input:focus { color: var(--accent); }
 
         /* ═══════════════════════════════════
            RESPONSIVE
@@ -463,22 +467,22 @@
          Single-line iCloud/Apple Business style
          ════════════════════════════════════════ -->
     <div id="s1" class="step active mt-6">
-        <div class="card order-rows">
-            <div class="order-row">
-                <span class="or-label">Commande</span>
-                <span class="or-value mono" id="orderNo">ST-...</span>
+        <div class="card stbl">
+            <div class="stbl-row">
+                <span class="stbl-label">Commande</span>
+                <span class="stbl-value mono" id="orderNo">ST-...</span>
             </div>
-            <div class="order-row">
-                <span class="or-label">Date</span>
-                <span class="or-value" id="orderDate">--/--/----</span>
+            <div class="stbl-row">
+                <span class="stbl-label">Date</span>
+                <span class="stbl-value" id="orderDate">--/--/----</span>
             </div>
-            <div class="order-row">
-                <span class="or-label">Client</span>
-                <input type="text" id="clientName" class="or-input" placeholder="Nom du client">
+            <div class="stbl-row">
+                <span class="stbl-label">Client</span>
+                <input type="text" id="clientName" class="stbl-input" placeholder="Nom du client">
             </div>
-            <div class="order-row">
-                <span class="or-label">Telephone</span>
-                <input type="tel" id="clientPhone" class="or-input" placeholder="06 00 00 00 00">
+            <div class="stbl-row">
+                <span class="stbl-label">Telephone</span>
+                <input type="tel" id="clientPhone" class="stbl-input" placeholder="06 00 00 00 00">
             </div>
         </div>
         <button class="btn btn-primary" onclick="go(2)">Continuer</button>
