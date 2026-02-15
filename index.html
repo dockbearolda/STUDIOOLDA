@@ -420,6 +420,8 @@ let logo  = null;   // {type:'atelier',id,s} | {type:'custom',url}
 let paid  = false;
 let svgF  = null;
 let svgB  = null;
+let vbF   = null;   // computed viewBox for front
+let vbB   = null;   // computed viewBox for back
 
 /* ══════════════════════════════════════
    INIT
@@ -438,6 +440,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetch('tshirt-back.svg').then(r => r.text())
         ]);
         svgF = f; svgB = b;
+
+        // Compute aligned viewBoxes via getBBox
+        const tmp = document.getElementById('svgBox');
+        const bboxes = [svgF, svgB].map(raw => {
+            tmp.innerHTML = raw;
+            const s = tmp.querySelector('svg');
+            s.removeAttribute('width'); s.removeAttribute('height');
+            s.style.position = 'absolute'; s.style.visibility = 'hidden';
+            const bb = s.getBBox();
+            return bb;
+        });
+        // Union height/Y, individual X centering with same width
+        const maxW = Math.max(bboxes[0].width, bboxes[1].width);
+        const minY = Math.min(bboxes[0].y, bboxes[1].y);
+        const maxYB = Math.max(bboxes[0].y + bboxes[0].height, bboxes[1].y + bboxes[1].height);
+        const uniH = maxYB - minY;
+        const pad = 20;
+        vbF = `${bboxes[0].x + bboxes[0].width/2 - maxW/2 - pad} ${minY - pad} ${maxW + pad*2} ${uniH + pad*2}`;
+        vbB = `${bboxes[1].x + bboxes[1].width/2 - maxW/2 - pad} ${minY - pad} ${maxW + pad*2} ${uniH + pad*2}`;
+        tmp.innerHTML = '';
     } catch(e) { console.error(e); }
 
     renderSVG();
@@ -485,6 +507,8 @@ function renderSVG() {
     if (el) {
         el.removeAttribute('width');
         el.removeAttribute('height');
+        const vb = side === 'front' ? vbF : vbB;
+        if (vb) el.setAttribute('viewBox', vb);
         el.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
 
