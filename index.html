@@ -1368,6 +1368,9 @@ window.submit = async function() {
     const b = document.getElementById('subBtn');
     b.textContent = 'Envoi...'; b.disabled = true; b.style.opacity = '0.6';
 
+    /* Open atelier window NOW (before any await) to avoid popup blocker */
+    var atelierWin = window.open('about:blank', '_blank');
+
     /* Capture mockups front + back */
     var mockupFront = await captureMockup(svgF, logos.front, color.h);
     var mockupBack  = await captureMockup(svgB, logos.back, color.h);
@@ -1436,7 +1439,9 @@ window.submit = async function() {
 
     try {
         var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(ficheData))));
-        window.open(ATELIER_URL + '#' + encoded, '_blank');
+        if (atelierWin && !atelierWin.closed) {
+            atelierWin.location.href = ATELIER_URL + '#' + encoded;
+        }
     } catch(e) {
         console.error('Fiche atelier:', e);
     }
