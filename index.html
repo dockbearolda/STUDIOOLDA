@@ -597,7 +597,7 @@
         <!-- Motif Logo -->
         <div class="card p-5">
             <div class="flex items-center justify-between mb-2">
-                <p class="label mb-0">Motif Logo</p>
+                <p class="label mb-0" id="logoSectionLabel">Design Logo Av</p>
                 <button style="border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--accent);font-family:inherit;" onclick="dropLogo()">Retirer</button>
             </div>
             <div class="aselect" id="selLogo"></div>
@@ -955,7 +955,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const gn = k === 'bea' ? 'BEA-16' : k === 'sxm' ? 'SXM-12' : 'COR-01';
         arr.forEach(l => _logoOpts.push({ v: l.id, l: gn + ' \u2014 ' + l.n }));
     });
-    createRichSelect('selLogo', _logoOpts, 'Choisir un motif', (val) => {
+    createRichSelect('selLogo', _logoOpts, 'Choisir un design', (val) => {
         let found = null;
         Object.values(LOGOS).forEach(arr => arr.forEach(l => { if (l.id === val) found = l; }));
         if (found) {
@@ -1242,6 +1242,7 @@ window.flipSide = function(s) {
     if (side === s) return;
     side = s;
     document.querySelectorAll('.seg-btn[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === s));
+    document.getElementById('logoSectionLabel').textContent = s === 'front' ? 'Design Logo Av' : 'Design Logo Ar';
     const v = document.getElementById('svgView');
     v.classList.add('fading');
     setTimeout(() => {
