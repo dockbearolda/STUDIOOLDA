@@ -164,19 +164,21 @@
         .btn-ghost { background: white; color: var(--text-2); box-shadow: 0 0 0 0.5px var(--separator); }
         .btn-ghost:hover { background: var(--bg); }
 
-        /* Payment option cards (Apple colored) */
+        /* Payment option cards — neutral by default, colored only when selected */
         .pay-opt {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; padding: 14px 16px; border-radius: var(--radius);
-            background: var(--pay-bg); border: 1.5px solid var(--pay-border);
-            color: var(--pay-color); font-size: 15px; font-weight: 600;
+            background: var(--bg); border: 1.5px solid var(--border);
+            color: var(--text-2); font-size: 15px; font-weight: 600;
             cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: left;
         }
         .pay-opt:active { transform: scale(0.98); opacity: 0.9; }
-        .pay-opt.on { background: var(--pay-bg-on); border-color: var(--pay-border-on); }
+        .pay-opt.on {
+            background: var(--pay-bg-on); border-color: var(--pay-border-on); color: var(--pay-color);
+        }
         .pay-opt::after {
             content: ''; width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-            border: 2px solid var(--pay-border); transition: all 0.2s;
+            border: 2px solid var(--separator); transition: all 0.2s;
         }
         .pay-opt.on::after {
             border-color: var(--pay-color); background: var(--pay-color);
