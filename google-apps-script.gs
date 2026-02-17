@@ -44,12 +44,13 @@ function doPost(e) {
       ''                             // Q  FICHE (manuel)
     ];
 
+    // Force TÉLÉPHONE en texte AVANT l'écriture → conserve le 0 initial
+    var nextRow = sheet.getLastRow() + 1;
+    sheet.getRange(nextRow, 4).setNumberFormat('@');
+
     sheet.appendRow(row);
 
     var lastRow = sheet.getLastRow();
-
-    // Force TÉLÉPHONE en texte → conserve le 0 initial
-    sheet.getRange(lastRow, 4).setNumberFormat('@');
 
     // Colonne P (col 16) — couleur Apple selon statut paiement
     var payCell   = sheet.getRange(lastRow, 16);
