@@ -51,6 +51,19 @@ function doPost(e) {
     // Force TÉLÉPHONE en texte → conserve le 0 initial
     sheet.getRange(lastRow, 4).setNumberFormat('@');
 
+    // Colonne P (col 16) — couleur Apple selon statut paiement
+    var payCell   = sheet.getRange(lastRow, 16);
+    var payeUpper = (data.paye || '').toUpperCase();
+    if (payeUpper === 'OUI') {
+      payCell.setBackground('#34C759');  // Apple green
+      payCell.setFontColor('#FFFFFF');
+      payCell.setFontWeight('bold');
+    } else {
+      payCell.setBackground('#FF3B30');  // Apple red
+      payCell.setFontColor('#FFFFFF');
+      payCell.setFontWeight('bold');
+    }
+
     return jsonResponse_({ status: 'ok', row: lastRow });
 
   } catch (err) {
