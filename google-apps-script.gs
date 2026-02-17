@@ -6,34 +6,32 @@
 const SHEET_NAME = 'Commandes';
 const TIMEZONE   = 'Europe/Paris';
 
-// ─── Ordre des colonnes (NE PAS modifier sans réinitialiser les en-têtes) ───
+// ─── Structure exacte du Google Sheet (A → Q) ───────────────
 const HEADERS = [
-  'N° Commande',        // col  1
-  'Date',               // col  2
-  'Client',             // col  3
-  'Téléphone',          // col  4  → forcé en texte pour conserver le 0
-  'Collection',         // col  5
-  'Référence',          // col  6
-  'Taille',             // col  7
-  'Couleur T-shirt',    // col  8
-  'Logo Avant',         // col  9
-  'Couleur Logo Av.',   // col 10
-  'Logo Arrière',       // col 11
-  'Couleur Logo Ar.',   // col 12
-  'Note',               // col 13
-  'Prix T-shirt (€)',   // col 14
-  'Personnalisation (€)',// col 15
-  'Total (€)',          // col 16
-  'Statut paiement',    // col 17
-  'Acompte (€)',        // col 18
-  'Horodatage'          // col 19
+  'N° COMMANDE',              // A  col  1
+  'DATE',                     // B  col  2
+  'NOM',                      // C  col  3
+  'TÉLÉPHONE',                // D  col  4  → format texte (conserve le 0)
+  'COLLECTION / RÉFÉRENCE',   // E  col  5  → combiné : "Homme — H-001"
+  'TAILLE',                   // F  col  6
+  'COULEUR',                  // G  col  7  → couleur du t-shirt
+  'T-SHIRT',                  // H  col  8  → laissé vide (remplissage manuel / image)
+  'LOGO AVANT',               // I  col  9
+  'COULEUR LOGO AVANT',       // J  col 10
+  'LOGO ARRIÈRE',             // K  col 11
+  'COULEUR LOGO ARRIÈRE',     // L  col 12
+  'PRIX T-SHIRT',             // M  col 13
+  'PERSONNALISATION',         // N  col 14
+  'TOTAL',                    // O  col 15
+  'PAYÉ',                     // P  col 16
+  'FICHE (Lien Drive / Image)'// Q  col 17  → laissé vide (ajout manuel)
 ];
 
 // ─── Couleurs en-têtes ───────────────────────────────────────
 const COLOR_HEADER_BG = '#1C1C2E';
 const COLOR_HEADER_FG = '#FFFFFF';
 
-// ─── Couleurs par statut de paiement (cellule Statut) ────────
+// ─── Couleurs Statut paiement (colonne P) ────────────────────
 const COLOR_PAYE_OUI   = '#C6EFCE';  // vert
 const COLOR_PAYE_ACPTE = '#FFEB9C';  // jaune
 const COLOR_PAYE_NON   = '#FFC7CE';  // rouge
@@ -58,36 +56,37 @@ function doPost(e) {
     var data  = JSON.parse(raw);
     var sheet = getOrCreateSheet_();
 
-    var ts = Utilities.formatDate(new Date(), TIMEZONE, 'dd/MM/yyyy HH:mm:ss');
+    // ── Colonne E : "Collection — Référence" combiné ──────────
+    var collectionRef = [data.collection, data.reference]
+      .filter(function(v) { return v && v.trim(); })
+      .join(' — ');
 
-    // ── Ordre strict calé sur HEADERS ────────────────────────
+    // ── Ligne calée exactement sur les colonnes A → Q ─────────
     var row = [
-      data.commande            || '',  //  1  N° Commande
-      data.date                || '',  //  2  Date
-      data.nom                 || '',  //  3  Client
-      data.telephone           || '',  //  4  Téléphone
-      data.collection          || '',  //  5  Collection
-      data.reference           || '',  //  6  Référence
-      data.taille              || '',  //  7  Taille
-      data.couleurTshirt       || '',  //  8  Couleur T-shirt
-      data.logoAvant           || '',  //  9  Logo Avant
-      data.couleurLogoAvant    || '',  // 10  Couleur Logo Av.
-      data.logoArriere         || '',  // 11  Logo Arrière
-      data.couleurLogoArriere  || '',  // 12  Couleur Logo Ar.
-      data.note                || '',  // 13  Note
-      data.prixTshirt          || '',  // 14  Prix T-shirt
-      data.personnalisation    || '',  // 15  Personnalisation
-      data.total               || '',  // 16  Total
-      data.paye                || '',  // 17  Statut paiement
-      data.acompte             || '',  // 18  Acompte
-      ts                               // 19  Horodatage
+      data.commande         || '',  // A  N° COMMANDE
+      data.date             || '',  // B  DATE
+      data.nom              || '',  // C  NOM
+      data.telephone        || '',  // D  TÉLÉPHONE
+      collectionRef         || '',  // E  COLLECTION / RÉFÉRENCE
+      data.taille           || '',  // F  TAILLE
+      data.couleurTshirt    || '',  // G  COULEUR
+      '',                           // H  T-SHIRT (remplissage manuel)
+      data.logoAvant        || '',  // I  LOGO AVANT
+      data.couleurLogoAvant || '',  // J  COULEUR LOGO AVANT
+      data.logoArriere      || '',  // K  LOGO ARRIÈRE
+      data.couleurLogoArriere|| '', // L  COULEUR LOGO ARRIÈRE
+      data.prixTshirt       || '',  // M  PRIX T-SHIRT
+      data.personnalisation || '',  // N  PERSONNALISATION
+      data.total            || '',  // O  TOTAL
+      data.paye             || '',  // P  PAYÉ
+      ''                            // Q  FICHE (ajout manuel)
     ];
 
     sheet.appendRow(row);
 
     var lastRow = sheet.getLastRow();
 
-    // Force le téléphone en texte (conserve le 0 initial)
+    // Force la colonne TÉLÉPHONE (D = col 4) en texte → conserve le 0
     sheet.getRange(lastRow, 4).setNumberFormat('@');
 
     formatDataRow_(sheet, lastRow, data.paye, data.collection);
@@ -108,7 +107,7 @@ function doGet() {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  FEUILLE  —  création ou récupération + contrôle des en-têtes
+//  FEUILLE  —  récupération + vérification des en-têtes
 // ─────────────────────────────────────────────────────────────
 function getOrCreateSheet_() {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
@@ -117,28 +116,25 @@ function getOrCreateSheet_() {
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
     setupHeaders_(sheet);
-  } else {
-    // Vérifie si les en-têtes correspondent ; les corrige sinon
-    var currentHeaders = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
-    var headersMatch = HEADERS.every(function(h, i) { return h === currentHeaders[i]; });
-    if (!headersMatch) {
-      setupHeaders_(sheet);
-    }
+    return sheet;
   }
+
+  // Vérifie si la ligne 1 correspond aux en-têtes attendus
+  var current = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+  var match   = HEADERS.every(function(h, i) { return h === current[i]; });
+  if (!match) setupHeaders_(sheet);
 
   return sheet;
 }
 
 // ─────────────────────────────────────────────────────────────
-//  EN-TÊTES  —  écriture + style + formats de colonnes
+//  EN-TÊTES  —  écriture + style + format colonne Téléphone
 // ─────────────────────────────────────────────────────────────
 function setupHeaders_(sheet) {
   var n = HEADERS.length;
 
-  // En-têtes texte
   sheet.getRange(1, 1, 1, n).setValues([HEADERS]);
 
-  // Style
   var hRange = sheet.getRange(1, 1, 1, n);
   hRange.setBackground(COLOR_HEADER_BG);
   hRange.setFontColor(COLOR_HEADER_FG);
@@ -150,29 +146,27 @@ function setupHeaders_(sheet) {
   sheet.setFrozenRows(1);
   sheet.setFrozenColumns(1);
 
-  // Force la colonne Téléphone (col 4) en texte sur tout le sheet
+  // Colonne TÉLÉPHONE (D = col 4) → toujours en texte
   sheet.getRange(1, 4, sheet.getMaxRows(), 1).setNumberFormat('@');
 
-  // Largeurs de colonnes
-  sheet.setColumnWidth(1,  165);  // N° Commande
-  sheet.setColumnWidth(2,  110);  // Date
-  sheet.setColumnWidth(3,  160);  // Client
-  sheet.setColumnWidth(4,  120);  // Téléphone
-  sheet.setColumnWidth(5,  110);  // Collection
-  sheet.setColumnWidth(6,  110);  // Référence
-  sheet.setColumnWidth(7,   80);  // Taille
-  sheet.setColumnWidth(8,  130);  // Couleur T-shirt
-  sheet.setColumnWidth(9,  130);  // Logo Avant
-  sheet.setColumnWidth(10, 130);  // Couleur Logo Av.
-  sheet.setColumnWidth(11, 130);  // Logo Arrière
-  sheet.setColumnWidth(12, 130);  // Couleur Logo Ar.
-  sheet.setColumnWidth(13, 200);  // Note
-  sheet.setColumnWidth(14, 120);  // Prix T-shirt
-  sheet.setColumnWidth(15, 145);  // Personnalisation
-  sheet.setColumnWidth(16, 100);  // Total
-  sheet.setColumnWidth(17, 130);  // Statut paiement
-  sheet.setColumnWidth(18, 100);  // Acompte
-  sheet.setColumnWidth(19, 155);  // Horodatage
+  // Largeurs
+  sheet.setColumnWidth(1,  165);  // A  N° COMMANDE
+  sheet.setColumnWidth(2,  110);  // B  DATE
+  sheet.setColumnWidth(3,  160);  // C  NOM
+  sheet.setColumnWidth(4,  120);  // D  TÉLÉPHONE
+  sheet.setColumnWidth(5,  180);  // E  COLLECTION / RÉFÉRENCE
+  sheet.setColumnWidth(6,   80);  // F  TAILLE
+  sheet.setColumnWidth(7,  130);  // G  COULEUR
+  sheet.setColumnWidth(8,  120);  // H  T-SHIRT
+  sheet.setColumnWidth(9,  130);  // I  LOGO AVANT
+  sheet.setColumnWidth(10, 150);  // J  COULEUR LOGO AVANT
+  sheet.setColumnWidth(11, 130);  // K  LOGO ARRIÈRE
+  sheet.setColumnWidth(12, 150);  // L  COULEUR LOGO ARRIÈRE
+  sheet.setColumnWidth(13, 120);  // M  PRIX T-SHIRT
+  sheet.setColumnWidth(14, 145);  // N  PERSONNALISATION
+  sheet.setColumnWidth(15, 100);  // O  TOTAL
+  sheet.setColumnWidth(16, 100);  // P  PAYÉ
+  sheet.setColumnWidth(17, 200);  // Q  FICHE
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -182,15 +176,15 @@ function formatDataRow_(sheet, rowIndex, paye, collection) {
   var n        = HEADERS.length;
   var rowRange = sheet.getRange(rowIndex, 1, 1, n);
 
-  // Couleur de fond selon la collection
+  // Couleur de ligne selon la collection
   var collKey = (collection || '').toUpperCase().trim();
   var bgColor = COLOR_COLLECTION[collKey] || COLOR_COLLECTION['DEFAULT'];
   rowRange.setBackground(bgColor);
   rowRange.setVerticalAlignment('middle');
   sheet.setRowHeight(rowIndex, 28);
 
-  // Couleur de la cellule "Statut paiement" (col 17)
-  var payCell   = sheet.getRange(rowIndex, 17);
+  // Cellule PAYÉ (P = col 16)
+  var payCell   = sheet.getRange(rowIndex, 16);
   var payeUpper = (paye || '').toUpperCase();
   if (payeUpper === 'OUI') {
     payCell.setBackground(COLOR_PAYE_OUI);
@@ -206,7 +200,7 @@ function formatDataRow_(sheet, rowIndex, paye, collection) {
 
 // ─────────────────────────────────────────────────────────────
 //  RÉINITIALISER LES EN-TÊTES  —  à lancer UNE FOIS manuellement
-//  si les colonnes du sheet existant ne correspondent pas
+//  si le sheet existant avait d'autres colonnes
 // ─────────────────────────────────────────────────────────────
 function reinitialiserEntetes() {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
@@ -216,7 +210,7 @@ function reinitialiserEntetes() {
     return;
   }
   setupHeaders_(sheet);
-  SpreadsheetApp.getUi().alert('En-têtes réinitialisées avec succès.');
+  SpreadsheetApp.getUi().alert('En-têtes réinitialisées. Les données existantes restent intactes.');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -243,10 +237,10 @@ function testerAvecCommandeFactice() {
   var fakeEvent = {
     postData: {
       contents: JSON.stringify({
-        commande           : '2026-0217-TestClient',
+        commande           : '2026-0217-Test',
         date               : '17/02/2026',
         nom                : 'Client Test',
-        telephone          : '0600000000',
+        telephone          : '0612345678',
         collection         : 'Femme',
         reference          : 'F-002',
         taille             : 'M',
@@ -255,7 +249,6 @@ function testerAvecCommandeFactice() {
         couleurLogoAvant   : 'Blanc',
         logoArriere        : '',
         couleurLogoArriere : '',
-        note               : 'Test automatique — vérif logo + téléphone + couleur ligne',
         prixTshirt         : '25',
         personnalisation   : '10',
         total              : '35 €',
@@ -273,27 +266,27 @@ function testerAvecCommandeFactice() {
 //  INSTRUCTIONS DE DÉPLOIEMENT
 // ─────────────────────────────────────────────────────────────
 //
-//  PREMIÈRE INSTALLATION :
-//  1. Ouvrir le Google Sheet → Extensions → Apps Script
-//  2. Supprimer le code existant, coller TOUT ce fichier
+//  1. Google Sheet → Extensions → Apps Script
+//  2. Supprimer le code existant, coller CE fichier
 //  3. Sauvegarder (Ctrl+S)
-//  4. Exécuter "reinitialiserEntetes" (accepter les autorisations)
-//     → Corrige les en-têtes si l'ancien script était différent
-//  5. Exécuter "testerAvecCommandeFactice" → vérifier que la ligne
-//     apparaît avec la bonne couleur et le 0 du téléphone conservé
+//  4. Lancer "reinitialiserEntetes" (une seule fois)
+//     → aligne les en-têtes sur vos colonnes A–Q actuelles
+//  5. Lancer "testerAvecCommandeFactice"
+//     → vérifier : ligne rose (Femme), 0612... intact, logos OK
 //  6. Déployer → Nouveau déploiement
-//       Type         : Application Web
-//       Exécuter en  : Moi (votre compte Google)
-//       Accès        : Tout le monde
-//  7. Copier l'URL générée
-//  8. Dans index.html ligne 705, mettre à jour la constante API :
-//       const API = "COLLER_L_URL_ICI";
+//       Type        : Application Web
+//       Exécuter en : Moi
+//       Accès       : Tout le monde
+//  7. Copier l'URL → index.html const API = "..."
 //
-//  COULEURS DES LIGNES :
-//  - Homme      → bleu clair
-//  - Femme      → rose clair
-//  - Enfant     → vert clair
-//  - Accessoire → violet clair
-//  - Statut paiement : vert = OUI | jaune = ACOMPTE | rouge = NON
+//  RÉSULTAT ATTENDU (colonnes A–Q) :
+//  A: N° commande   B: Date      C: Nom       D: Téléphone (0 conservé)
+//  E: Homme — H-001 F: Taille    G: Couleur   H: (vide — manuel)
+//  I: Logo Avant    J: Coul.Logo K: Logo Arr. L: Coul.Logo
+//  M: Prix          N: Perso     O: Total     P: Payé (coloré)
+//  Q: Fiche (vide — à coller manuellement)
+//
+//  COULEURS DE LIGNE :
+//  Homme → bleu  |  Femme → rose  |  Enfant → vert  |  Accessoire → violet
 //
 // ─────────────────────────────────────────────────────────────
