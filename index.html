@@ -341,6 +341,181 @@
         .logo-handle.se { bottom: -11px; right: -11px; cursor: nwse-resize; }
 
         /* ═══════════════════════════════════
+           TAP OVERLAY (état vide du t-shirt)
+           ═══════════════════════════════════ */
+        .logo-tap-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-tap-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            border: 1.5px dashed rgba(0,122,255,0.3);
+            border-radius: 12px;
+            padding: 10px 16px;
+            background: rgba(0,122,255,0.04);
+            transition: all 0.18s;
+        }
+        .logo-tap-overlay:active .logo-tap-inner { background: rgba(0,122,255,0.1); transform: scale(0.96); }
+        .logo-tap-plus { font-size: 20px; line-height: 1; color: rgba(0,122,255,0.55); font-weight: 300; }
+        .logo-tap-text { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,122,255,0.55); }
+        .logo-tap-overlay.gone { display: none; }
+
+        /* ═══════════════════════════════════
+           FLOAT BAR (barre flottante logo)
+           ═══════════════════════════════════ */
+        .logo-float-bar {
+            margin: 8px 2px 0;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 14px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.09), 0 0 0 0.5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            animation: enterStep 0.2s ease;
+        }
+        .fbar-dot {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.18s;
+            box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.12);
+            flex-shrink: 0;
+            position: relative;
+            padding: 0;
+        }
+        .fbar-dot::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: border-color 0.18s;
+        }
+        .fbar-dot.on::after { border-color: var(--accent); }
+        .fbar-dot.on { transform: scale(0.78); }
+        .fbar-sep { width: 1px; height: 18px; background: rgba(0,0,0,0.08); flex-shrink: 0; margin: 0 1px; }
+        .fbar-btn {
+            padding: 5px 11px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            letter-spacing: -0.01em;
+            flex-shrink: 0;
+        }
+        .fbar-btn:active { transform: scale(0.93); }
+        .fbar-change { background: rgba(0,122,255,0.1); color: var(--accent); }
+        .fbar-remove { background: rgba(255,59,48,0.08); color: var(--red); margin-left: auto; }
+
+        /* ═══════════════════════════════════
+           LOGO BOTTOM SHEET
+           ═══════════════════════════════════ */
+        .lsheet-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.32);
+            z-index: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .lsheet-backdrop.open { opacity: 1; pointer-events: auto; }
+        .lsheet {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #F5F5F7;
+            border-radius: 22px 22px 0 0;
+            z-index: 600;
+            transform: translateY(100%);
+            transition: transform 0.44s cubic-bezier(0.32, 0.72, 0, 1);
+            max-height: 78vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -1px 0 rgba(0,0,0,0.05), 0 -8px 40px rgba(0,0,0,0.12);
+        }
+        .lsheet.open { transform: translateY(0); }
+        .lsheet-handle-row { padding: 10px; display: flex; justify-content: center; flex-shrink: 0; }
+        .lsheet-handle { width: 36px; height: 4px; background: rgba(0,0,0,0.15); border-radius: 2px; }
+        .lsheet-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px 14px; flex-shrink: 0;
+        }
+        .lsheet-title { font-size: 18px; font-weight: 700; color: var(--text-1); letter-spacing: -0.025em; }
+        .lsheet-close-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: rgba(0,0,0,0.07); border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-2); font-weight: 700; font-size: 14px; font-family: inherit;
+            transition: background 0.15s;
+        }
+        .lsheet-close-btn:active { background: rgba(0,0,0,0.14); }
+        .lsheet-scroll {
+            overflow-y: auto; flex: 1; padding: 4px 16px 36px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .lsheet-scroll::-webkit-scrollbar { display: none; }
+        .lsheet-group-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.09em; color: var(--text-3); margin: 14px 0 8px 4px;
+        }
+        .lsheet-logo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .lsheet-thumb {
+            border-radius: 14px; background: white;
+            border: 1.5px solid transparent;
+            cursor: pointer; padding: 10px 8px 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            transition: all 0.18s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.04);
+        }
+        .lsheet-thumb:active { transform: scale(0.95); }
+        .lsheet-thumb.on { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
+        .lsheet-thumb svg { width: 56px; height: 56px; }
+        .lsheet-thumb-name { font-size: 10px; font-weight: 600; color: var(--text-2); letter-spacing: 0.02em; }
+        .lsheet-sep { height: 0.5px; background: var(--separator); margin: 16px 0 4px; }
+        .lsheet-upload-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 14px; border-radius: 14px;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.04);
+            cursor: pointer; border: none; width: 100%;
+            font-family: inherit; text-align: left;
+        }
+        .lsheet-upload-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(0,122,255,0.1);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .lsheet-color-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+        .lsheet-color-dot {
+            width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.12);
+            position: relative; transition: transform 0.18s; flex-shrink: 0;
+            border: none;
+        }
+        .lsheet-color-dot::before {
+            content: ''; position: absolute; inset: -4px;
+            border-radius: 50%; border: 2px solid transparent; transition: border-color 0.18s;
+        }
+        .lsheet-color-dot.on::before { border-color: var(--accent); }
+        .lsheet-color-dot.on { transform: scale(0.82); }
+        .lsheet-color-section { display: none; }
+        .lsheet-color-section.visible { display: block; }
+
+        /* ═══════════════════════════════════
            COLOR SWATCHES (iPhone Style)
            ═══════════════════════════════════ */
         .swatch-row { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -728,6 +903,12 @@
                     <p class="shirt-side-label">Avant</p>
                     <div class="svg-view" id="svgViewFront">
                         <div class="svg-box" id="svgBoxFront"></div>
+                        <div class="logo-tap-overlay" id="logoTapFront">
+                            <div class="logo-tap-inner">
+                                <div class="logo-tap-plus">+</div>
+                                <div class="logo-tap-text">Logo</div>
+                            </div>
+                        </div>
                         <div class="logo-zone empty" id="logoZoneFront" data-side="front"
                              style="left:50%;top:42%;width:24%;height:17%;">
                             <div class="logo-inner" id="logoInnerFront"></div>
@@ -745,6 +926,12 @@
                     <p class="shirt-side-label">Arrière</p>
                     <div class="svg-view" id="svgViewBack">
                         <div class="svg-box" id="svgBoxBack"></div>
+                        <div class="logo-tap-overlay" id="logoTapBack">
+                            <div class="logo-tap-inner">
+                                <div class="logo-tap-plus">+</div>
+                                <div class="logo-tap-text">Logo</div>
+                            </div>
+                        </div>
                         <div class="logo-zone empty" id="logoZoneBack" data-side="back"
                              style="left:50%;top:42%;width:24%;height:17%;">
                             <div class="logo-inner" id="logoInnerBack"></div>
@@ -756,6 +943,14 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Float bar logo (affiché quand un logo est placé sur le côté actif) -->
+            <div class="logo-float-bar" id="logoFloatBar" style="display:none;">
+                <div id="fbarColors" style="display:flex;gap:6px;align-items:center;flex:1;min-width:0;"></div>
+                <div class="fbar-sep"></div>
+                <button class="fbar-btn fbar-change" onclick="openLogoSheet()">Changer</button>
+                <button class="fbar-btn fbar-remove" onclick="dropLogo()">Retirer</button>
             </div>
 
             <!-- Sliders Y Apple-style -->
@@ -795,39 +990,6 @@
         <div class="card p-5">
             <label class="label ml-1 mb-2 block">Couleur du t-shirt</label>
             <div class="aselect" id="selColor"></div>
-        </div>
-
-        <!-- Motif Logo -->
-        <div class="card p-5">
-            <div class="flex items-center justify-between mb-2">
-                <p class="label mb-0" id="logoSectionLabel">Design Logo Av</p>
-                <button style="border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--accent);font-family:inherit;" onclick="dropLogo()">Retirer</button>
-            </div>
-            <div class="aselect" id="selLogo"></div>
-        </div>
-
-        <!-- Couleur du logo -->
-        <div class="card p-5" id="logoColorSection" style="display:none;">
-            <label class="label ml-1 mb-2 block">Couleur du logo</label>
-            <div class="aselect" id="selLogoColor"></div>
-        </div>
-
-        <!-- Upload -->
-        <div class="card p-5">
-            <p class="label mb-3">Mon Logo</p>
-            <label class="upload-area" id="uploadArea">
-                <span class="plus">+</span>
-                <span>Ajouter mon logo</span>
-                <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" id="fileIn" onchange="onUpload(event)">
-            </label>
-            <div class="upload-pill mt-3" id="upPill">
-                <img id="upThumb" src="" alt="">
-                <div style="min-width:0">
-                    <p class="text-[13px] font-semibold truncate" id="upName">logo.png</p>
-                    <p class="text-[11px]" style="color:var(--text-3)">Personnalise</p>
-                </div>
-                <button class="x" onclick="rmUpload()">x</button>
-            </div>
         </div>
 
         <!-- Note -->
@@ -907,6 +1069,52 @@
         <button class="sf-btn-secondary" onclick="location.reload()">Nouvelle commande</button>
     </div>
 </div>
+
+<!-- ═══════════════════════════════════════════
+     LOGO BOTTOM SHEET (sélecteur Apple-style)
+════════════════════════════════════════════ -->
+<div class="lsheet-backdrop" id="lsheetBackdrop" onclick="closeLogoSheet()"></div>
+<div class="lsheet" id="lsheet">
+    <div class="lsheet-handle-row"><div class="lsheet-handle"></div></div>
+    <div class="lsheet-header">
+        <span class="lsheet-title" id="lsheetTitle">Logo Avant</span>
+        <button class="lsheet-close-btn" onclick="closeLogoSheet()">✕</button>
+    </div>
+    <div class="lsheet-scroll">
+        <!-- Couleur du logo (visible quand un logo Atelier est sélectionné) -->
+        <div class="lsheet-color-section" id="lsheetColorSection">
+            <div class="lsheet-group-label">Couleur du logo</div>
+            <div class="lsheet-color-row" id="lsheetColorRow"></div>
+            <div class="lsheet-sep"></div>
+        </div>
+        <!-- Grille des logos Atelier -->
+        <div id="lsheetLogoGrid"></div>
+        <!-- Upload mon logo -->
+        <div class="lsheet-sep"></div>
+        <label class="lsheet-upload-row" for="fileIn">
+            <div class="lsheet-upload-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <div>
+                <p style="font-size:15px;font-weight:600;color:var(--text-1);letter-spacing:-0.02em;margin:0 0 2px;">Mon logo</p>
+                <p style="font-size:12px;color:var(--text-3);margin:0;">PNG, JPEG, SVG</p>
+            </div>
+        </label>
+        <div class="upload-pill mt-3" id="upPill">
+            <img id="upThumb" src="" alt="">
+            <div style="min-width:0">
+                <p class="text-[13px] font-semibold truncate" id="upName">logo.png</p>
+                <p class="text-[11px]" style="color:var(--text-3)">Personnalisé</p>
+            </div>
+            <button class="x" onclick="rmUpload()">×</button>
+        </div>
+    </div>
+</div>
+<input type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" id="fileIn" onchange="onUpload(event)">
 
 <canvas id="exportCanvas" width="800" height="1100" class="hidden"></canvas>
 
@@ -1164,34 +1372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
     selects['selColor'].setValue(COLORS[0].h);
 
-    // Logo dropdown (all ateliers in one list)
-    const _logoOpts = [];
-    Object.entries(LOGOS).forEach(([k, arr]) => {
-        const gn = k === 'bea' ? 'BEA-16' : k === 'sxm' ? 'SXM-12' : 'COR-01';
-        arr.forEach(l => _logoOpts.push({ v: l.id, l: gn + ' \u2014 ' + l.n }));
-    });
-    createRichSelect('selLogo', _logoOpts, 'Choisir un design', (val) => {
-        let found = null;
-        Object.values(LOGOS).forEach(arr => arr.forEach(l => { if (l.id === val) found = l; }));
-        if (found) {
-            const cur = cl();
-            cur.data = { type: 'atelier', id: found.id, s: found.s };
-            showLogoColorSection(true);
-            cur.x = 50; cur.y = 42; cur.w = 24; cur.h = 17;
-            document.getElementById('upPill').classList.remove('show');
-            document.getElementById('uploadArea').style.display = 'flex';
-            document.getElementById('fileIn').value = '';
-            renderLogo();
-        }
-    });
-
-    // Logo color dropdown (replaces pastilles)
-    createRichSelect('selLogoColor',
-        LOGO_COLORS.map(c => ({ v: c.h, l: c.n, html: colorDotHtml(c.h, c.n), trigger: colorDotHtml(c.h, c.n) })),
-        'Couleur du logo',
-        (val) => { cl().logoColor = val; renderLogo(); }
-    );
-    selects['selLogoColor'].setValue(LOGO_COLORS[0].h);
+    // Logo interaction — géré directement depuis le t-shirt (bottom sheet)
 
     initLogoInteraction();
 
@@ -1321,6 +1502,8 @@ function renderLogoForSide(s) {
 function renderLogo() {
     renderLogoForSide('front');
     renderLogoForSide('back');
+    updateFloatBar();
+    updateTapOverlays();
 }
 
 function updateLogoPositionForSide(s) {
@@ -1346,29 +1529,18 @@ function updateLogoPosition() {
    ══════════════════════════════════════ */
 function syncLogoUI() {
     const cur = cl();
-    // Update logo dropdown
-    if (cur.data && cur.data.type === 'atelier') {
-        if (selects['selLogo'] && selects['selLogo'].setValue) selects['selLogo'].setValue(cur.data.id);
-        showLogoColorSection(true);
-    } else {
-        if (selects['selLogo'] && selects['selLogo'].reset) selects['selLogo'].reset();
-        showLogoColorSection(false);
-    }
-    // Restore per-side logo color
-    if (selects['selLogoColor'] && selects['selLogoColor'].setValue) {
-        selects['selLogoColor'].setValue(cur.logoColor || '#1A1A1A');
-    }
-    // Upload pill
+    // Upload pill dans le sheet
     if (cur.data && cur.data.type === 'custom') {
         document.getElementById('upThumb').src = cur.data.url;
         document.getElementById('upName').textContent = cur.data.name || 'Custom';
         document.getElementById('upPill').classList.add('show');
-        document.getElementById('uploadArea').style.display = 'none';
     } else {
         document.getElementById('upPill').classList.remove('show');
-        document.getElementById('uploadArea').style.display = 'flex';
-        document.getElementById('fileIn').value = '';
+        const fi = document.getElementById('fileIn');
+        if (fi) fi.value = '';
     }
+    updateFloatBar();
+    updateTapOverlays();
 }
 
 /* ══════════════════════════════════════
@@ -1427,13 +1599,19 @@ function initLogoInteraction() {
     document.addEventListener('pointermove', onLogoMove);
     document.addEventListener('pointerup',   onLogoUp);
 
-    // Désélection globale : clic hors de tout logo-zone → tout désélectionner
+    // Désélection globale
     document.addEventListener('pointerdown', e => {
-        if (!e.target.closest('.logo-zone')) {
+        if (!e.target.closest('.logo-zone') && !e.target.closest('.logo-tap-overlay')) {
             logoSelected = false;
             document.querySelectorAll('.logo-zone').forEach(z => z.classList.remove('selected'));
         }
     });
+
+    // Tap overlay → ouvre le bottom sheet de sélection logo
+    const tapF = document.getElementById('logoTapFront');
+    const tapB = document.getElementById('logoTapBack');
+    if (tapF) tapF.addEventListener('click', () => { flipSide('front'); openLogoSheet('front'); });
+    if (tapB) tapB.addEventListener('click', () => { flipSide('back');  openLogoSheet('back');  });
 
     // Sliders Y
     document.getElementById('sliderFrontY').addEventListener('input', e => {
@@ -1458,8 +1636,6 @@ function onLogoDown(e, activeSide) {
         // Désélectionner tous les logos (évite cadre bleu fantôme sur l'autre côté)
         document.querySelectorAll('.logo-zone').forEach(z => z.classList.remove('selected'));
         logoSelected = false;
-        document.getElementById('logoSectionLabel').textContent =
-            side === 'front' ? 'Design Logo Av' : 'Design Logo Ar';
         document.getElementById('colFront').classList.toggle('active', side === 'front');
         document.getElementById('colBack').classList.toggle('active',  side === 'back');
         syncLogoUI();
@@ -1540,29 +1716,24 @@ function onLogoUp(e) {
    ══════════════════════════════════════ */
 window.flipSide = function(s) {
     side = s;
-    // Désélectionner tous les logos quand on switch de côté
     logoSelected = false;
     document.querySelectorAll('.logo-zone').forEach(z => z.classList.remove('selected'));
-    document.getElementById('logoSectionLabel').textContent = s === 'front' ? 'Design Logo Av' : 'Design Logo Ar';
     document.getElementById('colFront').classList.toggle('active', s === 'front');
     document.getElementById('colBack').classList.toggle('active',  s === 'back');
     syncLogoUI();
 };
 
-function showLogoColorSection(show) {
-    document.getElementById('logoColorSection').style.display = show ? 'block' : 'none';
-}
+function showLogoColorSection() { /* géré par le bottom sheet */ }
 
 window.dropLogo = function() {
     const cur = cl();
     cur.data = null;
     logoSelected = false;
-    if (selects['selLogo'] && selects['selLogo'].reset) selects['selLogo'].reset();
-    showLogoColorSection(false);
     document.getElementById('upPill').classList.remove('show');
-    document.getElementById('uploadArea').style.display = 'flex';
-    document.getElementById('fileIn').value = '';
+    const fi = document.getElementById('fileIn'); if (fi) fi.value = '';
     renderLogo();
+    updateFloatBar();
+    updateTapOverlays();
 };
 
 /* ══════════════════════════════════════
@@ -1575,14 +1746,12 @@ window.onUpload = function(e) {
     r.onload = function(ev) {
         const cur = cl();
         cur.data = {type:'custom', url:ev.target.result, name:f.name};
-        if (selects['selLogo'] && selects['selLogo'].reset) selects['selLogo'].reset();
         document.getElementById('upThumb').src = ev.target.result;
         document.getElementById('upName').textContent = f.name;
         document.getElementById('upPill').classList.add('show');
-        document.getElementById('uploadArea').style.display = 'none';
-        showLogoColorSection(false);
         cur.x = 50; cur.y = 42; cur.w = 24; cur.h = 17;
         renderLogo();
+        closeLogoSheet();
     };
     r.readAsDataURL(f);
 };
@@ -1591,8 +1760,138 @@ window.rmUpload = function() {
     const cur = cl();
     if (cur.data && cur.data.type === 'custom') { cur.data = null; renderLogo(); }
     document.getElementById('upPill').classList.remove('show');
-    document.getElementById('uploadArea').style.display = 'flex';
-    document.getElementById('fileIn').value = '';
+    const fi = document.getElementById('fileIn'); if (fi) fi.value = '';
+};
+
+/* ══════════════════════════════════════
+   TAP OVERLAYS — état vide/rempli
+   ══════════════════════════════════════ */
+function updateTapOverlays() {
+    ['front', 'back'].forEach(s => {
+        const id = s === 'front' ? 'logoTapFront' : 'logoTapBack';
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (logos[s].data) { el.classList.add('gone'); }
+        else               { el.classList.remove('gone'); }
+    });
+}
+
+/* ══════════════════════════════════════
+   FLOAT BAR — barre contextuelle logo
+   ══════════════════════════════════════ */
+function updateFloatBar() {
+    const bar = document.getElementById('logoFloatBar');
+    if (!bar) return;
+    const cur = logos[side];
+    if (!cur.data) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    const colContainer = document.getElementById('fbarColors');
+    if (!colContainer) return;
+    colContainer.innerHTML = '';
+    LOGO_COLORS.forEach(c => {
+        const dot = document.createElement('button');
+        dot.className = 'fbar-dot' + (cur.logoColor === c.h ? ' on' : '');
+        dot.style.background = c.h;
+        dot.title = c.n;
+        dot.addEventListener('click', e => {
+            e.stopPropagation();
+            cur.logoColor = c.h;
+            renderLogoForSide('front');
+            renderLogoForSide('back');
+            updateFloatBar();
+        });
+        colContainer.appendChild(dot);
+    });
+}
+
+/* ══════════════════════════════════════
+   LOGO BOTTOM SHEET
+   ══════════════════════════════════════ */
+let _sheetSide = 'front';
+
+function buildSheetLogoGrid() {
+    const grid = document.getElementById('lsheetLogoGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const cur = logos[_sheetSide];
+    Object.entries(LOGOS).forEach(([k, arr]) => {
+        const label = document.createElement('div');
+        label.className = 'lsheet-group-label';
+        label.textContent = k === 'bea' ? 'BEA — 16' : k === 'sxm' ? 'SXM — 12' : 'COR — 01';
+        grid.appendChild(label);
+        const g = document.createElement('div');
+        g.className = 'lsheet-logo-grid';
+        arr.forEach(l => {
+            const thumb = document.createElement('div');
+            thumb.className = 'lsheet-thumb' + (cur.data && cur.data.id === l.id ? ' on' : '');
+            const svgContainer = document.createElement('div');
+            svgContainer.innerHTML = l.s;
+            const svgEl = svgContainer.querySelector('svg');
+            if (svgEl) { svgEl.setAttribute('width','56'); svgEl.setAttribute('height','56'); }
+            const nameEl = document.createElement('div');
+            nameEl.className = 'lsheet-thumb-name';
+            nameEl.textContent = l.n;
+            if (svgEl) thumb.appendChild(svgEl);
+            thumb.appendChild(nameEl);
+            thumb.addEventListener('click', () => {
+                cur.data = { type: 'atelier', id: l.id, s: l.s };
+                cur.x = 50; cur.y = 42; cur.w = 24; cur.h = 17;
+                renderLogo();
+                updateSheetColorSection();
+                buildSheetLogoGrid();
+                closeLogoSheet();
+            });
+            g.appendChild(thumb);
+        });
+        grid.appendChild(g);
+    });
+}
+
+function buildSheetColorRow() {
+    const row = document.getElementById('lsheetColorRow');
+    if (!row) return;
+    const cur = logos[_sheetSide];
+    row.innerHTML = '';
+    LOGO_COLORS.forEach(c => {
+        const dot = document.createElement('button');
+        dot.className = 'lsheet-color-dot' + (cur.logoColor === c.h ? ' on' : '');
+        dot.style.background = c.h;
+        dot.title = c.n;
+        dot.addEventListener('click', () => {
+            cur.logoColor = c.h;
+            renderLogoForSide('front');
+            renderLogoForSide('back');
+            updateFloatBar();
+            buildSheetColorRow();
+        });
+        row.appendChild(dot);
+    });
+}
+
+function updateSheetColorSection() {
+    const sec = document.getElementById('lsheetColorSection');
+    if (!sec) return;
+    const cur = logos[_sheetSide];
+    if (cur.data && cur.data.type === 'atelier') {
+        sec.classList.add('visible');
+        buildSheetColorRow();
+    } else {
+        sec.classList.remove('visible');
+    }
+}
+
+window.openLogoSheet = function(s) {
+    if (s !== undefined) _sheetSide = s;
+    document.getElementById('lsheetTitle').textContent = _sheetSide === 'front' ? 'Logo Avant' : 'Logo Arrière';
+    buildSheetLogoGrid();
+    updateSheetColorSection();
+    document.getElementById('lsheet').classList.add('open');
+    document.getElementById('lsheetBackdrop').classList.add('open');
+};
+
+window.closeLogoSheet = function() {
+    document.getElementById('lsheet').classList.remove('open');
+    document.getElementById('lsheetBackdrop').classList.remove('open');
 };
 
 /* ══════════════════════════════════════
