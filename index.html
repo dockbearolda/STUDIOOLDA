@@ -508,8 +508,7 @@
         }
         .lsheet-color-dot.on::before { border-color: var(--accent); }
         .lsheet-color-dot.on { transform: scale(0.82); }
-        .lsheet-color-section { display: none; }
-        .lsheet-color-section.visible { display: block; }
+        .lsheet-color-section { display: block; }
 
         /* ═══════════════════════════════════
            COLOR SWATCHES (iPhone Style)
@@ -938,8 +937,12 @@
             </div>
 
 
-            <!-- Couleur T-shirt — menu déroulant -->
-            <div class="aselect" id="colorSelect" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- Couleur T-shirt — menu déroulant -->
+        <div class="card p-5 mt-3">
+            <label class="label ml-1 mb-2 block">Couleur T-shirt</label>
+            <div class="aselect" id="colorSelect"></div>
         </div>
 
         <!-- Collection -->
@@ -1923,15 +1926,7 @@ function buildSheetColorRow() {
 }
 
 function updateSheetColorSection() {
-    const sec = document.getElementById('lsheetColorSection');
-    if (!sec) return;
-    const cur = logos[_sheetSide];
-    if (cur.data && cur.data.type === 'atelier') {
-        sec.classList.add('visible');
-        buildSheetColorRow();
-    } else {
-        sec.classList.remove('visible');
-    }
+    buildSheetColorRow();
 }
 
 window.openLogoSheet = function(s) {
