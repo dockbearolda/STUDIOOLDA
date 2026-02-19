@@ -838,13 +838,13 @@
                 <!-- ID — une ligne, mono -->
                 <div class="flex items-center py-3">
                     <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">ID</span>
-                    <span class="text-[13px] font-light text-gray-400 tracking-tight select-all truncate" id="orderNo">—</span>
+                    <span class="text-[17px] font-semibold text-gray-900 tracking-tight select-all truncate" id="orderNo">—</span>
                 </div>
 
                 <!-- DATE — une ligne -->
                 <div class="flex items-center py-3">
                     <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">DATE</span>
-                    <span class="text-[17px] font-semibold text-gray-900" id="orderDate">15/02/2026</span>
+                    <span class="text-[17px] font-semibold text-gray-900 tracking-tight" id="orderDate">15/02/2026</span>
                 </div>
 
                 <!-- NOM — une ligne -->
@@ -1453,7 +1453,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 /* ══════════════════════════════════════
    NAVIGATION
    ══════════════════════════════════════ */
-const TITLES = ['Client','Configurateur','Paiement'];
+const TITLES = ['Client','Studio','Paiement'];
 
 window.go = function(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
