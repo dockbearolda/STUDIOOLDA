@@ -730,8 +730,12 @@ function renderFicheDetail(f) {
 
     var deadlineEl = document.getElementById('fDeadline');
     if (deadlineEl) {
-        if (f.deadline) { deadlineEl.textContent = '⏱ ' + f.deadline; deadlineEl.style.display = ''; }
-        else { deadlineEl.style.display = 'none'; }
+        if (f.deadline) {
+            var dp = f.deadline.split('-');
+            var dfr = dp.length === 3 ? dp[2] + '/' + dp[1] + '/' + dp[0] : f.deadline;
+            deadlineEl.textContent = '⏱ ' + dfr;
+            deadlineEl.style.display = '';
+        } else { deadlineEl.style.display = 'none'; }
     }
 
     /* Note */
