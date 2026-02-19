@@ -1228,7 +1228,8 @@ const LOGO_COLORS = [
 
 /* ── Catalogue références ── */
 const REFERENCES = {
-    'H-001': { fournisseur: 'NS300', prix: 35, largeurs: { XS: 220, S: 250, M: 270, L: 300, XL: 320, XXL: 320 } }
+    'H-001': { fournisseur: 'NS300', prix: 35, largeurs: { XS: 220, S: 250, M: 270, L: 300, XL: 320, XXL: 320 } },
+    'H-002': { fournisseur: 'NS300', prix: 39, largeurs: { XS: 220, S: 250, M: 270, L: 300, XL: 320, XXL: 320 } }
 };
 
 const FABRIC_RE = /rgb\(100%,\s*100%,\s*100%\)/gi;
@@ -1485,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Prix T-shirt et Personnalisation — menus déroulants (step 3)
     const mkPriceOpts = vals => vals.map(v => ({ v: String(v), l: v + ' €' }));
-    const selP = createRichSelect('selPrice', mkPriceOpts([15,20,25,30,35,40,45,50]), '— €', () => calcTotal());
+    const selP = createRichSelect('selPrice', mkPriceOpts([15,20,25,30,35,39,40,45,50]), '— €', () => calcTotal());
     if (selP) { selP.setValue('25'); }
     const selQ = createRichSelect('selPerso', mkPriceOpts([0,5,10,15,20,25,30]), '— €', () => calcTotal());
     if (selQ) { selQ.setValue('0'); }
@@ -1569,6 +1570,7 @@ window.buildRefs = function() {
         const refData = REFERENCES[v];
         if (refData) {
             document.getElementById('price').value = refData.prix;
+            if (selects['selPrice']) selects['selPrice'].setValue(String(refData.prix));
             calcTotal();
         }
         updateLogoMmDisplay();
