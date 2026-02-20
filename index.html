@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Studio Olda</title>
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -12,9 +12,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Studio Olda">
     <meta name="theme-color" content="#1D1D1F">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-    tailwind.config = { theme: { extend: { fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','SF Pro Text','Helvetica Neue','Helvetica','Arial','sans-serif'] } } } }
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','SF Pro Text','Inter','Helvetica Neue','Helvetica','Arial','sans-serif'] } } } }
     </script>
     <style>
         :root {
@@ -34,9 +37,28 @@
         }
 
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; }
+        input, select, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; border-radius: 0; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; color: #111827; }
+        input[type="date"]::-webkit-date-and-time-value { text-align: left; color: #111827; }
+
+        /* ── Touch optimisation (supprime délai 300ms sur iOS/Android/Samsung) ── */
+        button, a, label[for],
+        .aselect-trigger, .aselect-opt, .seg-btn, .swatch,
+        .pay-opt, .lsheet-close-btn, .fbar-btn, .shirt-col,
+        .logo-tap-overlay, .lsheet-upload-row, .sf-btn-primary, .sf-btn-secondary {
+            touch-action: manipulation;
+        }
+        /* ── Overscroll (empêche le scroll parent de se déclencher sur Android) ── */
+        .aselect-dropdown, .lsheet-scroll { overscroll-behavior: contain; }
+
+        /* ── Hover uniquement sur vrais pointeurs (évite états bloqués sur tactile) ── */
+        @media (hover: none) {
+            .aselect-opt:hover, .aselect-trigger:hover,
+            .seg-btn:hover, .swatch:hover, .pay-opt:hover { background: unset; }
+        }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background: var(--bg);
             color: var(--text-1);
             -webkit-font-smoothing: antialiased;
@@ -141,7 +163,7 @@
             font-family: inherit;
         }
         .aselect-opt:active { background: rgba(0,122,255,0.08); }
-        .aselect-opt:hover { background: var(--bg); }
+        @media (hover: hover) { .aselect-opt:hover { background: var(--bg); } }
         .aselect-opt + .aselect-opt { border-top: 0.5px solid var(--border); }
         .aselect-opt.on { color: var(--accent); font-weight: 600; }
         .aselect-opt.on::after {
@@ -391,6 +413,30 @@
             gap: 8px;
             animation: enterStep 0.2s ease;
         }
+        /* BIO badge — discret */
+        .bio-badge {
+            position: absolute;
+            bottom: 7px;
+            left: 7px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(34,139,34,0.13);
+            color: #1a6b32;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 2px 6px 2px 5px;
+            border-radius: 12px;
+            border: 0.5px solid rgba(34,139,34,0.28);
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .bio-badge.visible { opacity: 1; transform: scale(1); }
+        .bio-badge svg { flex-shrink: 0; }
         .fbar-btn {
             padding: 5px 11px;
             border-radius: 9px;
@@ -428,6 +474,8 @@
             transform: translateY(100%);
             transition: transform 0.44s cubic-bezier(0.32, 0.72, 0, 1);
             max-height: 78vh;
+            max-height: 78dvh; /* dynamic viewport height — exclut la barre navigateur iOS/Samsung */
+            padding-bottom: env(safe-area-inset-bottom, 0px); /* home indicator iPhone */
             display: flex;
             flex-direction: column;
             box-shadow: 0 -1px 0 rgba(0,0,0,0.05), 0 -8px 40px rgba(0,0,0,0.12);
@@ -753,11 +801,22 @@
         .s1-btn:hover { background: #1D4ED8; }
         .s1-btn:active { transform: scale(0.95); }
 
+        /* ── H1 responsive — évite débordement sur petits écrans (iPhone SE, Galaxy A) ── */
+        #hTitle { font-size: clamp(24px, 8vw, 34px); }
+
         /* ═══════════════════════════════════
-           RESPONSIVE
+           RESPONSIVE — desktop / tablette
            ═══════════════════════════════════ */
+        @media (min-width: 600px) {
+            body { background: #EBEBF0; }
+            .max-w-lg { padding-top: 32px; }
+            .card, .stage, #s1 > div {
+                box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.03);
+            }
+            #successCard { padding: 52px 44px 40px; }
+        }
         @media (min-width: 768px) {
-            /* svg-view sizing now via aspect-ratio, no override needed */
+            .shirts-grid { gap: 20px; }
         }
 
         ::-webkit-scrollbar { width: 0; }
@@ -787,10 +846,12 @@
             background: rgba(0,0,0,.52);
             backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
             animation: sfOverlayIn .22s ease;
+            padding: env(safe-area-inset-top,0px) env(safe-area-inset-right,0px)
+                     env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
         }
         #successCard {
             background: #fff; border-radius: 28px;
-            padding: 48px 36px 36px; width: min(370px, 92vw);
+            padding: 40px 32px 32px; width: min(370px, calc(100vw - 40px));
             text-align: center;
             box-shadow: 0 48px 120px rgba(0,0,0,.38);
             animation: sfCardIn .42s cubic-bezier(.34,1.44,.64,1);
@@ -807,6 +868,7 @@
             animation: sfCheckDraw .5s .25s cubic-bezier(.4,0,.2,1) forwards;
         }
         .sf-btn-primary {
+            display: block; text-decoration: none; text-align: center;
             width: 100%; background: #007AFF; color: #fff;
             border: none; border-radius: 14px; padding: 16px;
             font-size: 16px; font-weight: 600; cursor: pointer;
@@ -857,38 +919,45 @@
 
                 <!-- ID — une ligne, mono -->
                 <div class="flex items-center py-3">
-                    <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">ID</span>
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">ID</span>
                     <span class="text-[17px] font-semibold text-gray-900 tracking-tight select-all truncate" id="orderNo">—</span>
                 </div>
 
                 <!-- DATE — une ligne -->
                 <div class="flex items-center py-3">
-                    <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">DATE</span>
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">DATE</span>
                     <span class="text-[17px] font-semibold text-gray-900 tracking-tight" id="orderDate">15/02/2026</span>
                 </div>
 
                 <!-- NOM — une ligne -->
                 <div class="flex items-center py-3">
-                    <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">NOM</span>
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">NOM</span>
                     <input type="text" id="clientNom"
-                           class="flex-1 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
-                           placeholder="Dubois" autocomplete="family-name">
+                           class="flex-1 min-w-0 p-0 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
+                           placeholder="Dubois" autocomplete="family-name" autocapitalize="words">
                 </div>
 
                 <!-- PRÉNOM — une ligne -->
                 <div class="flex items-center py-3">
-                    <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">PRÉNOM</span>
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">PRÉNOM</span>
                     <input type="text" id="clientPrenom"
-                           class="flex-1 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
-                           placeholder="Pierre" autocomplete="given-name">
+                           class="flex-1 min-w-0 p-0 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
+                           placeholder="Pierre" autocomplete="given-name" autocapitalize="words">
                 </div>
 
                 <!-- TEL — une ligne -->
                 <div class="flex items-center py-3">
-                    <span class="w-20 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">TEL</span>
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">TEL</span>
                     <input type="tel" id="clientPhone"
-                           class="flex-1 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
+                           class="flex-1 min-w-0 p-0 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight placeholder:text-gray-300 placeholder:font-normal outline-none border-0 focus:ring-0"
                            placeholder="0690 00 00 00">
+                </div>
+
+                <!-- LIMIT — une ligne -->
+                <div class="flex items-center py-3">
+                    <span class="w-24 shrink-0 text-[12px] font-black text-gray-300 uppercase tracking-[0.18em]">LIMIT</span>
+                    <input type="date" id="clientDeadline"
+                           class="flex-1 min-w-0 p-0 bg-transparent text-[17px] font-semibold text-gray-900 tracking-tight outline-none border-0 focus:ring-0">
                 </div>
 
             </div>
@@ -928,6 +997,11 @@
                             <div class="logo-inner" id="logoInnerFront"></div>
                             <div class="logo-frame"></div>
                         </div>
+                        <!-- Badge BIO (Apple-style) — visible si référence BIO -->
+                        <div class="bio-badge" id="bioBadge">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 2-8 2z"/></svg>
+                            100% BIO
+                        </div>
                     </div>
                 </div>
 
@@ -947,8 +1021,18 @@
                             <div class="logo-frame"></div>
                         </div>
                     </div>
+                    <!-- Côte logo arrière — saisie manuelle (H-001 : auto) -->
+                    <div class="flex items-center justify-center gap-1 mt-1" onclick="event.stopPropagation()">
+                        <input type="text" inputmode="numeric" id="coteLogoAr"
+                               class="w-14 text-center text-[11px] font-bold bg-transparent outline-none"
+                               style="color:var(--accent);border-bottom:1.5px solid var(--accent);"
+                               placeholder="— mm"
+                               onclick="event.stopPropagation()">
+                        <span class="text-[11px] font-semibold" style="color:var(--accent)">mm</span>
+                    </div>
                 </div>
-            </div>
+
+            </div><!-- /shirts-grid -->
 
             <!-- Float bar logo (affiché quand un logo est placé sur le côté actif) -->
             <div class="logo-float-bar" id="logoFloatBar" style="display:none;">
@@ -956,8 +1040,7 @@
                 <button class="fbar-btn fbar-remove" onclick="dropLogo()">Retirer</button>
             </div>
 
-
-        </div>
+        </div><!-- /stage -->
 
         <!-- Couleur T-shirt — menu déroulant -->
         <div class="card p-5 mt-3">
@@ -1065,7 +1148,7 @@
         <p style="font-size:24px;font-weight:700;color:#1A1A1A;margin:0 0 6px;letter-spacing:-.4px;">Commande envoyée</p>
         <p id="sfOrderNo" style="font-size:13px;color:#8E8E93;margin:0 0 10px;letter-spacing:.3px;font-weight:300;"></p>
         <p id="sfClientName" style="font-size:15px;color:#3A3A3C;margin:0 0 30px;font-weight:500;"></p>
-        <button id="sfFicheBtn" class="sf-btn-primary">Voir la fiche atelier &rsaquo;</button>
+        <a id="sfFicheBtn" class="sf-btn-primary" target="_blank" rel="noopener">Voir le Dashboard ›</a>
         <button class="sf-btn-secondary" onclick="location.reload()">Nouvelle commande</button>
     </div>
 </div>
@@ -1126,6 +1209,10 @@
    CONFIG
    ══════════════════════════════════════ */
 const API = "https://script.google.com/macros/s/AKfycbyzeU0tD22L8wZ94PW0f4s1a2LH7fNPhK74RtjcIXs0pWAP59anDV8EYtYlP8WX5iCk/exec";
+
+/* ── Dashboard OLDA — même domaine que le formulaire ── */
+const DASHBOARD_URL   = window.location.origin;
+const DASHBOARD_TOKEN = "d1e9c4cd170eb57f8ce6254b5aa70b7f708e465d48daefc7f3b0b7e16bd9f4dc";
 
 const COLORS = [
     /* ── Basiques (les + commandés) ── */
@@ -1207,6 +1294,12 @@ const LOGO_COLORS = [
     {n:'Rose',    h:'#FF69B4'},{n:'Orange',  h:'#FF6600'},{n:'Violet',  h:'#6B46C1'}
 ];
 
+/* ── Catalogue références ── */
+const REFERENCES = {
+    'H-001': { fournisseur: 'NS300', desc: 'T-shirt Léger NATIVE SPIRIT NS300 100% CotonBIO', prix: 35, bio: true, largeurs: { XS: 220, S: 250, M: 270, L: 300, XL: 320, XXL: 320 } },
+    'H-002': { fournisseur: 'NS300', prix: 39, largeurs: { XS: 220, S: 250, M: 270, L: 300, XL: 320, XXL: 320 } }
+};
+
 const FABRIC_RE = /rgb\(100%,\s*100%,\s*100%\)/gi;
 
 const LOGOS = {
@@ -1225,6 +1318,9 @@ const LOGOS = {
         {id:'cor-1',n:'Shield',s:`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><path d="M60 18 L95 35 L95 70 Q95 95 60 108 Q25 95 25 70 L25 35 Z" stroke="#1A1A1A" stroke-width="2.5" fill="none"/><text x="60" y="62" text-anchor="middle" font-size="20" font-weight="900" fill="#1A1A1A" font-family="sans-serif">COR</text><text x="60" y="80" text-anchor="middle" font-size="9" font-weight="500" fill="#1A1A1A" letter-spacing="2" font-family="sans-serif">— 01 —</text></svg>`},
         {id:'cor-2',n:'Typo',s:`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><text x="60" y="45" text-anchor="middle" font-size="40" font-weight="900" fill="#1A1A1A" font-family="sans-serif">C</text><line x1="25" y1="55" x2="95" y2="55" stroke="#1A1A1A" stroke-width="2"/><text x="60" y="72" text-anchor="middle" font-size="11" font-weight="600" fill="#1A1A1A" letter-spacing="8" font-family="sans-serif">CORSICA</text><text x="60" y="92" text-anchor="middle" font-size="9" font-weight="500" fill="#1A1A1A" font-family="sans-serif">Edition 01</text></svg>`},
         {id:'cor-3',n:'Crest',s:`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><ellipse cx="60" cy="58" rx="42" ry="45" stroke="#1A1A1A" stroke-width="2" fill="none"/><ellipse cx="60" cy="58" rx="35" ry="38" stroke="#1A1A1A" stroke-width="1" fill="none" opacity="0.3"/><text x="60" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" font-style="italic" fill="#1A1A1A">Cor</text><text x="60" y="72" text-anchor="middle" font-size="8" font-weight="600" fill="#1A1A1A" letter-spacing="5" font-family="sans-serif">PREMIERE</text><circle cx="60" cy="85" r="3" fill="#1A1A1A"/></svg>`}
+    ],
+    pay:[
+        {id:'pay-01',n:'Paysage 01',url:'pay01.svg',back:{x:47.9,y:41,w:67.2,h:44.8}}
     ]
 };
 
@@ -1444,9 +1540,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
     createSelect('selRef', [], 'Reference', () => {});
     createSelect('selSize',
-        [{v:'S',l:'S'},{v:'M',l:'M'},{v:'L',l:'L'},{v:'XL',l:'XL'},{v:'XXL',l:'XXL'}],
+        [{v:'XS',l:'XS'},{v:'S',l:'S'},{v:'M',l:'M'},{v:'L',l:'L'},{v:'XL',l:'XL'},{v:'XXL',l:'XXL'}],
         'Taille',
-        () => {}
+        () => updateLogoMmDisplay()
     );
     selects['selSize'].value = 'S';
     selects['selSize'].label = 'S';
@@ -1458,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Prix T-shirt et Personnalisation — menus déroulants (step 3)
     const mkPriceOpts = vals => vals.map(v => ({ v: String(v), l: v + ' €' }));
-    const selP = createRichSelect('selPrice', mkPriceOpts([15,20,25,30,35,40,45,50]), '— €', () => calcTotal());
+    const selP = createRichSelect('selPrice', mkPriceOpts([15,20,25,30,35,39,40,45,50]), '— €', () => calcTotal());
     if (selP) { selP.setValue('25'); }
     const selQ = createRichSelect('selPerso', mkPriceOpts([0,5,10,15,20,25,30]), '— €', () => calcTotal());
     if (selQ) { selQ.setValue('0'); }
@@ -1515,10 +1611,11 @@ function updateSerial() {
     const yy = String(d.getFullYear()).slice(-2);
     const hh = String(d.getHours()).padStart(2,'0');
     const mi = String(d.getMinutes()).padStart(2,'0');
-    const nom    = (document.getElementById('clientNom').value    || '').trim().replace(/\s+/g,'-');
-    const prenom = (document.getElementById('clientPrenom').value || '').trim().replace(/\s+/g,'-');
+    const cap = s => s ? s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase()) : '';
+    const nom    = cap((document.getElementById('clientNom').value    || '').trim()).replace(/\s+/g,'-');
+    const prenom = cap((document.getElementById('clientPrenom').value || '').trim()).replace(/\s+/g,'-');
     const namePart = nom && prenom ? `${nom}-${prenom}` : nom || prenom || '…';
-    document.getElementById('orderNo').textContent = `${dd}${mm}${yy}-${hh}${mi}-${namePart}`;
+    document.getElementById('orderNo').textContent = `${namePart}-${dd}${mm}${yy}-${hh}${mi}`;
 }
 
 /* ══════════════════════════════════════
@@ -1531,11 +1628,38 @@ window.buildRefs = function() {
         const prefix = c[0].toUpperCase();
         for (let i = 1; i <= 5; i++) {
             const code = prefix + '-' + String(i).padStart(3,'0');
-            opts.push({v: code, l: code});
+            const refData = REFERENCES[code];
+            const bioTag = refData && refData.bio ? '  🌿 BIO' : '';
+            const label = refData ? `${code}  ·  ${refData.fournisseur}${bioTag}` : code;
+            opts.push({v: code, l: label});
         }
     }
     updateSelectOptions('selRef', opts, 'Reference');
+    /* Auto-prix + affichage mm au choix de la référence */
+    selects['selRef'].onChange = function(v) {
+        const refData = REFERENCES[v];
+        if (refData) {
+            if (selects['selPrice']) selects['selPrice'].setValue(String(refData.prix));
+            calcTotal();
+        }
+        updateLogoMmDisplay();
+        const bioBadge = document.getElementById('bioBadge');
+        if (bioBadge) { bioBadge.classList.toggle('visible', !!(refData && refData.bio)); }
+    };
 };
+
+/* ══════════════════════════════════════
+   LARGEUR LOGO EN MM
+   ══════════════════════════════════════ */
+function updateLogoMmDisplay() {
+    const input = document.getElementById('coteLogoAr');
+    if (!input) return;
+    const refVal  = selects['selRef']  ? selects['selRef'].value  : '';
+    const sizeVal = selects['selSize'] ? selects['selSize'].value : '';
+    const refData = REFERENCES[refVal];
+    const logoArW = refData && refData.largeurs ? refData.largeurs[sizeVal] : null;
+    if (logoArW) input.value = logoArW;   // pré-remplit ; ne vide pas si saisie manuelle
+}
 
 /* ══════════════════════════════════════
    SVG RENDERING
@@ -1595,6 +1719,7 @@ function renderLogo() {
     renderLogoForSide('back');
     updateFloatBar();
     updateTapOverlays();
+    updateLogoMmDisplay();
 }
 
 function updateLogoPositionForSide(s) {
@@ -1610,6 +1735,7 @@ function updateLogoPositionForSide(s) {
 function updateLogoPosition() {
     updateLogoPositionForSide('front');
     updateLogoPositionForSide('back');
+    updateLogoMmDisplay();
 }
 
 /* ══════════════════════════════════════
@@ -1915,28 +2041,44 @@ function buildSheetLogoGrid() {
     Object.entries(LOGOS).forEach(([k, arr]) => {
         const label = document.createElement('div');
         label.className = 'lsheet-group-label';
-        label.textContent = k === 'bea' ? 'BEA — 16' : k === 'sxm' ? 'SXM — 12' : 'COR — 01';
+        label.textContent = k === 'bea' ? 'BEA — 16' : k === 'sxm' ? 'SXM — 12' : k === 'cor' ? 'COR — 01' : 'PAYSAGES';
         grid.appendChild(label);
         const g = document.createElement('div');
         g.className = 'lsheet-logo-grid';
         arr.forEach(l => {
             const thumb = document.createElement('div');
             thumb.className = 'lsheet-thumb' + (cur.data && cur.data.id === l.id ? ' on' : '');
-            const svgContainer = document.createElement('div');
-            svgContainer.innerHTML = l.s;
-            const svgEl = svgContainer.querySelector('svg');
-            if (svgEl) { svgEl.setAttribute('width','56'); svgEl.setAttribute('height','56'); }
+            if (l.url) {
+                const imgEl = document.createElement('img');
+                imgEl.src = l.url;
+                imgEl.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:6px;';
+                thumb.appendChild(imgEl);
+            } else {
+                const svgContainer = document.createElement('div');
+                svgContainer.innerHTML = l.s;
+                const svgEl = svgContainer.querySelector('svg');
+                if (svgEl) { svgEl.setAttribute('width','56'); svgEl.setAttribute('height','56'); }
+                if (svgEl) thumb.appendChild(svgEl);
+            }
             const nameEl = document.createElement('div');
             nameEl.className = 'lsheet-thumb-name';
             nameEl.textContent = l.n;
-            if (svgEl) thumb.appendChild(svgEl);
             thumb.appendChild(nameEl);
             thumb.addEventListener('click', () => {
-                cur.data = { type: 'atelier', id: l.id, s: l.s };
-                cur.x = _sheetSide === 'front' ? 66.5 : 47.9;
-                cur.y = _sheetSide === 'front' ? 28 : 31;
-                cur.w = _sheetSide === 'front' ? 18.9 : 67.2;
-                cur.h = _sheetSide === 'front' ? 12.6 : 44.8;
+                if (l.url) {
+                    cur.data = { type: 'custom', id: l.id, url: l.url, name: l.n };
+                } else {
+                    cur.data = { type: 'atelier', id: l.id, s: l.s };
+                }
+                if (_sheetSide === 'back' && l.back) {
+                    cur.x = l.back.x; cur.y = l.back.y;
+                    cur.w = l.back.w; cur.h = l.back.h;
+                } else {
+                    cur.x = _sheetSide === 'front' ? 66.5 : 47.9;
+                    cur.y = _sheetSide === 'front' ? 28 : 31;
+                    cur.w = _sheetSide === 'front' ? 18.9 : 67.2;
+                    cur.h = _sheetSide === 'front' ? 12.6 : 44.8;
+                }
                 renderLogo();
                 updateSheetColorSection();
                 buildSheetLogoGrid();
@@ -1971,6 +2113,9 @@ function buildSheetColorRow() {
 
 function updateSheetColorSection() {
     buildSheetColorRow();
+    const cur = logos[_sheetSide];
+    const section = document.getElementById('lsheetColorSection');
+    if (section) section.style.display = (cur.data && cur.data.type === 'atelier') ? '' : 'none';
 }
 
 window.openLogoSheet = function(s) {
@@ -1978,6 +2123,8 @@ window.openLogoSheet = function(s) {
     document.getElementById('lsheetTitle').textContent = _sheetSide === 'front' ? 'Logo Avant' : 'Logo Arrière';
     buildSheetLogoGrid();
     updateSheetColorSection();
+    const scroll = document.querySelector('.lsheet-scroll');
+    if (scroll) scroll.scrollTop = 0;
     document.getElementById('lsheet').classList.add('open');
     document.getElementById('lsheetBackdrop').classList.add('open');
 };
@@ -2052,6 +2199,86 @@ async function captureMockup(shirtSvg, sideData, fabricHex, W, H, Q) {
 }
 
 /* ══════════════════════════════════════
+   DASHBOARD — Création automatique de fiche
+   ══════════════════════════════════════ */
+
+/**
+ * Envoie la commande + fiche complète vers le Dashboard OLDA.
+ * Best-effort : une erreur réseau ne bloque pas le flux client.
+ *
+ * @param {Object} orderPayload  – payload commande
+ * @param {Object} ficheData     – données complètes de la fiche (avec mockups si dispo)
+ */
+async function sendOrderToDashboard(orderPayload, ficheData) {
+    var orderData = {
+        commande          : orderPayload.commande,
+        date              : orderPayload.date,
+        nom               : orderPayload.nom,
+        telephone         : orderPayload.telephone,
+        collection        : orderPayload.collection,
+        reference         : orderPayload.reference,
+        taille            : orderPayload.taille,
+        couleurTshirt     : orderPayload.couleurTshirt,
+        couleurTshirtHex  : orderPayload.couleurTshirtHex,
+        logoAvant         : orderPayload.logoAvant,
+        logoArriere       : orderPayload.logoArriere,
+        couleurLogoAvant  : orderPayload.couleurLogoAvant,
+        couleurLogoArriere: orderPayload.couleurLogoArriere,
+        note              : orderPayload.note,
+        prix              : {
+            tshirt          : orderPayload.prixTshirt,
+            personnalisation: orderPayload.personnalisation,
+            total           : orderPayload.total
+        },
+        paiement          : { statut: orderPayload.paye },
+        source            : 'site-client',
+        timestamp         : new Date().toISOString()
+    };
+
+    /* ── Ajouter les données de fiche complètes ── */
+    if (ficheData) {
+        orderData.fiche = {
+            deadline          : ficheData.deadline || '',
+            refDesc           : ficheData.refDesc || '',
+            bio               : ficheData.bio || false,
+            couleur           : ficheData.couleur || {},
+            coteLogoAr        : ficheData.coteLogoAr || '',
+            mockupFront       : ficheData.mockupFront || null,
+            mockupBack        : ficheData.mockupBack || null
+        };
+    }
+
+    try {
+        var response = await fetch(DASHBOARD_URL + '/api/orders', {
+            method : 'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+                'Authorization': 'Bearer ' + DASHBOARD_TOKEN
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+            console.error('[OLDA Dashboard] Réponse non-OK — statut:', response.status, response.statusText);
+        } else {
+            console.info('[OLDA Dashboard] Fiche créée avec succès:', orderData.commande);
+        }
+    } catch (err) {
+        console.error('[OLDA Dashboard] Envoi échoué:', err.message);
+
+        /* Sauvegarde locale si le dashboard est inaccessible */
+        try {
+            var _pending = JSON.parse(localStorage.getItem('olda_pending_dashboard') || '[]');
+            _pending.push(Object.assign({}, orderData, { _failedAt: new Date().toISOString() }));
+            localStorage.setItem('olda_pending_dashboard', JSON.stringify(_pending));
+            console.warn('[OLDA Dashboard] Commande mise en file locale.');
+        } catch (storageErr) {
+            console.warn('[OLDA Dashboard] Impossible de sauvegarder localement:', storageErr.message);
+        }
+    }
+}
+
+/* ══════════════════════════════════════
    SUBMIT  (A-Q payload)
    ══════════════════════════════════════ */
 window.submit = async function() {
@@ -2060,20 +2287,19 @@ window.submit = async function() {
 
     try {
 
-    /* ── Build payload ── */
+    /* ── Build payload (synchrone) ── */
     const collVal = selects['selCollection'] ? selects['selCollection'].value : '';
     const refVal  = selects['selRef']        ? selects['selRef'].value        : '';
     const sizeVal = selects['selSize']       ? selects['selSize'].value       : '';
-
-    const tel = document.getElementById('clientPhone').value || '';
-
+    const tel     = document.getElementById('clientPhone').value || '';
     const logoColorName = (hex, arr) => (arr.find(c => c.h === hex) || { n: hex }).n;
 
     const payload = {
         commande          : document.getElementById('orderNo').textContent.trim(),
         date              : document.getElementById('orderDate').textContent.trim(),
-        nom               : (document.getElementById('clientNom').value.trim() + ' ' +
-                             document.getElementById('clientPrenom').value.trim()).trim(),
+        nom               : ((s => s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase()))(
+                             (document.getElementById('clientNom').value.trim() + ' ' +
+                              document.getElementById('clientPrenom').value.trim()).trim())),
         telephone         : tel.trim(),
         collection        : collVal || '',
         reference         : refVal  || '',
@@ -2093,53 +2319,72 @@ window.submit = async function() {
         paye              : payStatus === 'oui' ? 'OUI' : 'NON'
     };
 
-    /* ── Capture mockups haute qualité (480×576, JPEG 0.90) pour la fiche atelier ── */
-    var mockupFront = await captureMockup(svgF, logos.front, color.h, 480, 576, 0.90);
-    var mockupBack  = await captureMockup(svgB, logos.back,  color.h, 480, 576, 0.90);
-
-    /* ── Build fiche data ── */
-    const ATELIER_URL = 'https://ficheatelier.pages.dev/ficheatelier-index.html';
+    /* ── Build fiche data (synchrone) ── */
+    const coteLogoAr = (document.getElementById('coteLogoAr')?.value || '').trim();
+    const deadline   = (document.getElementById('clientDeadline')?.value || '').trim();
     const ficheBase = {
         commande          : payload.commande,
         date              : payload.date,
         nom               : payload.nom,
         telephone         : payload.telephone,
+        deadline          : deadline,
         collection        : payload.collection,
         reference         : payload.reference,
+        refDesc           : (REFERENCES[payload.reference] && REFERENCES[payload.reference].desc) || '',
+        bio               : !!(REFERENCES[payload.reference] && REFERENCES[payload.reference].bio),
         taille            : payload.taille,
         couleur           : { nom: color.n, hex: color.h },
         logoAvant         : payload.logoAvant,
         logoArriere       : payload.logoArriere,
         couleurLogoAvant  : payload.couleurLogoAvant,
         couleurLogoArriere: payload.couleurLogoArriere,
+        coteLogoAr        : coteLogoAr,
         note              : payload.note,
         prix              : { tshirt: payload.prixTshirt, personnalisation: payload.personnalisation, total: payload.total },
         paiement          : { statut: payload.paye }
     };
 
-    /* URL légère (sans mockups, ~2 Ko) pour Google Sheets — évite le dépassement de taille POST */
-    var ficheLite = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(ficheBase))));
-    payload.fiche = ficheLite;
+    /* ── Capture mockups AVANT l'envoi (garantit que la fiche part complète) ── */
+    var mockupFront = null, mockupBack = null;
+    try {
+        mockupFront = await captureMockup(svgF, logos.front, color.h, 480, 576, 0.90);
+        mockupBack  = await captureMockup(svgB, logos.back,  color.h, 480, 576, 0.90);
+    } catch(e) { /* la fiche fonctionne sans mockups */ }
+
+    /* ── Fiche complète (avec mockups si disponibles) ── */
+    var ficheComplete = JSON.parse(JSON.stringify(ficheBase));
+    if (mockupFront) ficheComplete.mockupFront = mockupFront;
+    if (mockupBack)  ficheComplete.mockupBack  = mockupBack;
 
     /* ── Envoi Google Sheets (best-effort, non-bloquant) ── */
+    payload.fiche = DASHBOARD_URL;
     fetch(API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(() => {});
 
-    /* URL complète avec mockups (~150 Ko) pour le bouton local « Voir fiche » */
-    var ficheURL = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(
-        Object.assign({}, ficheBase, { mockupFront: mockupFront, mockupBack: mockupBack })
-    ))));
+    /* ── Sauvegarde fiche dans localStorage (même domaine = même dashboard) ── */
+    try {
+        var ficheKey = ficheComplete.commande || ('cmd-' + Date.now());
+        var allFiches = JSON.parse(localStorage.getItem('olda_fiches') || '{}');
+        if (!ficheComplete.status) ficheComplete.status = 'en-attente';
+        allFiches[ficheKey] = ficheComplete;
+        localStorage.setItem('olda_fiches', JSON.stringify(allFiches));
+    } catch(ficheErr) {
+        console.warn('[OLDA Fiche] Erreur sauvegarde:', ficheErr.message);
+    }
 
-    /* ── Apple success overlay ── */
+    /* ── Bouton fiche → dashboard atelier (même domaine) ── */
+    const ficheLink = document.getElementById('sfFicheBtn');
+    ficheLink.href = 'ficheatelier-index.html';
+    ficheLink.textContent = 'Voir la fiche récapitulative ›';
+
+    /* ── Success overlay ── */
     const overlay = document.getElementById('successOverlay');
     document.getElementById('sfOrderNo').textContent    = payload.commande;
     document.getElementById('sfClientName').textContent = payload.nom || '';
-    document.getElementById('sfFicheBtn').onclick = () => window.open(ficheURL, '_blank');
     overlay.classList.add('sf-on');
 
     } catch(e) {
         console.error('Erreur validation:', e);
         b.textContent = 'Valider la Commande'; b.disabled = false; b.style.opacity = '1';
-        /* Affichage erreur discret */
         const err = document.createElement('p');
         err.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#FF3B30;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;';
         err.textContent = 'Erreur : ' + e.message;
