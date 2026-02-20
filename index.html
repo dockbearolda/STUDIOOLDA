@@ -2164,19 +2164,17 @@ async function captureMockup(shirtSvg, sideData, fabricHex, W, H, Q) {
 /* ══════════════════════════════════════
    SUBMIT  (A-Q payload)
    ══════════════════════════════════════ */
-window.submit = async function() {
+window.submit = function() {
     const b = document.getElementById('subBtn');
     b.textContent = 'Envoi...'; b.disabled = true; b.style.opacity = '0.6';
 
     try {
 
-    /* ── Build payload ── */
+    /* ── Build payload (synchrone) ── */
     const collVal = selects['selCollection'] ? selects['selCollection'].value : '';
     const refVal  = selects['selRef']        ? selects['selRef'].value        : '';
     const sizeVal = selects['selSize']       ? selects['selSize'].value       : '';
-
-    const tel = document.getElementById('clientPhone').value || '';
-
+    const tel     = document.getElementById('clientPhone').value || '';
     const logoColorName = (hex, arr) => (arr.find(c => c.h === hex) || { n: hex }).n;
 
     const payload = {
@@ -2203,11 +2201,7 @@ window.submit = async function() {
         paye              : payStatus === 'oui' ? 'OUI' : 'NON'
     };
 
-    /* ── Capture mockups haute qualité (480×576, JPEG 0.90) pour la fiche atelier ── */
-    var mockupFront = await captureMockup(svgF, logos.front, color.h, 480, 576, 0.90);
-    var mockupBack  = await captureMockup(svgB, logos.back,  color.h, 480, 576, 0.90);
-
-    /* ── Build fiche data ── */
+    /* ── Build fiche data (synchrone, sans mockups) ── */
     const ATELIER_URL = 'https://ficheatelier.pages.dev/ficheatelier-index.html';
     const coteLogoAr = (document.getElementById('coteLogoAr')?.value || '').trim();
     const deadline   = (document.getElementById('clientDeadline')?.value || '').trim();
@@ -2233,29 +2227,38 @@ window.submit = async function() {
         paiement          : { statut: payload.paye }
     };
 
-    /* URL légère (sans mockups, ~2 Ko) pour Google Sheets — évite le dépassement de taille POST */
-    var ficheLite = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(ficheBase))));
-    payload.fiche = ficheLite;
+    var ficheURL = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(ficheBase))));
+    payload.fiche = ficheURL;
 
     /* ── Envoi Google Sheets (best-effort, non-bloquant) ── */
     fetch(API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(() => {});
 
-    /* URL complète avec mockups (~150 Ko) pour le bouton local « Voir fiche » */
-    var ficheURL = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(
-        Object.assign({}, ficheBase, { mockupFront: mockupFront, mockupBack: mockupBack })
-    ))));
+    /* ── Ouverture automatique de la fiche (synchrone = jamais bloquée par iOS) ── */
+    window.open(ficheURL, '_blank');
 
-    /* ── Apple success overlay ── */
+    /* ── Success overlay ── */
     const overlay = document.getElementById('successOverlay');
     document.getElementById('sfOrderNo').textContent    = payload.commande;
     document.getElementById('sfClientName').textContent = payload.nom || '';
     document.getElementById('sfFicheBtn').onclick = () => window.open(ficheURL, '_blank');
     overlay.classList.add('sf-on');
 
+    /* ── Capture mockups en arrière-plan (best-effort, ne bloque pas la fiche) ── */
+    (async () => {
+        try {
+            var mF = await captureMockup(svgF, logos.front, color.h, 480, 576, 0.90);
+            var mB = await captureMockup(svgB, logos.back,  color.h, 480, 576, 0.90);
+            var ficheWithMockups = ATELIER_URL + '#' + btoa(unescape(encodeURIComponent(JSON.stringify(
+                Object.assign({}, ficheBase, { mockupFront: mF, mockupBack: mB })
+            ))));
+            /* Mettre à jour le bouton overlay avec la version complète (mockups inclus) */
+            document.getElementById('sfFicheBtn').onclick = () => window.open(ficheWithMockups, '_blank');
+        } catch(e) { /* silencieux — la fiche sans mockup est déjà ouverte */ }
+    })();
+
     } catch(e) {
         console.error('Erreur validation:', e);
         b.textContent = 'Valider la Commande'; b.disabled = false; b.style.opacity = '1';
-        /* Affichage erreur discret */
         const err = document.createElement('p');
         err.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#FF3B30;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;';
         err.textContent = 'Erreur : ' + e.message;
