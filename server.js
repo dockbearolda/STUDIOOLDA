@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname), {
    - SITE_MODE=dashboard  → ficheatelier-index.html  (déploiement atelier interne)
    - sinon                → index.html               (site client public)          */
 const ROOT_FILE = process.env.SITE_MODE === 'dashboard'
-    ? 'ficheatelier-index.html'
+    ? 'dashboard.html'
     : 'index.html';
 
 app.get('/', (req, res) => {
