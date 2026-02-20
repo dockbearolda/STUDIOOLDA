@@ -14,9 +14,15 @@ app.use(express.static(path.join(__dirname), {
     }
 }));
 
-/* Route par défaut → index.html */
+/* Route par défaut :
+   - SITE_MODE=dashboard  → ficheatelier-index.html  (déploiement atelier interne)
+   - sinon                → index.html               (site client public)          */
+const ROOT_FILE = process.env.SITE_MODE === 'dashboard'
+    ? 'ficheatelier-index.html'
+    : 'index.html';
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, ROOT_FILE));
 });
 
 app.listen(PORT, () => {
