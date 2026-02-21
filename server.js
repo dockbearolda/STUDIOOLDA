@@ -288,7 +288,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, ROOT_FILE));
 });
 
-/* ── Route analytics ── */
+/* ── Routes dashboard ── */
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 app.get('/dashboard/analytics', (req, res) => {
     res.sendFile(path.join(__dirname, 'analytics.html'));
 });
