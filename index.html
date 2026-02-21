@@ -1171,6 +1171,11 @@
                             <div class="logo-inner" id="logoInnerBack"></div>
                             <div class="logo-frame"></div>
                         </div>
+                        <!-- Badge BIO arrière — même position que l'avant -->
+                        <div class="bio-badge" id="bioBadgeBack">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 2-8 2z"/></svg>
+                            100% BIO
+                        </div>
                     </div>
                     <!-- Côte logo arrière — saisie manuelle (H-001 : auto) -->
                     <div class="flex items-center justify-center gap-1 mt-1" onclick="event.stopPropagation()">
@@ -1216,13 +1221,6 @@
             <label class="label ml-1 mb-2 block">Taille</label>
             <div class="aselect" id="selSize"></div>
         </div>
-
-        <!-- Taille DTF arrière -->
-        <div class="card p-5">
-            <label class="label ml-1 mb-2 block">Taille DTF arrière</label>
-            <div class="aselect" id="selTailleDtf"></div>
-        </div>
-
 
         <!-- Note -->
         <div class="card p-5">
@@ -1706,19 +1704,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('#selSize .aselect-trigger').textContent = 'S';
     document.querySelector('#selSize .aselect-trigger').classList.remove('placeholder');
 
-    // Taille DTF arrière
-    createSelect('selTailleDtf',
-        [
-            {v:'',     l:'Aucun'},
-            {v:'A5',   l:'A5 — 15×21 cm'},
-            {v:'A4',   l:'A4 — 21×30 cm'},
-            {v:'A3',   l:'A3 — 30×42 cm'},
-            {v:'A2',   l:'A2 — 42×59 cm'}
-        ],
-        'Taille DTF arrière',
-        () => {}
-    );
-
     // Couleur T-shirt — menu déroulant
     initColorSelect();
 
@@ -1832,8 +1817,11 @@ window.buildRefs = function() {
             calcTotal();
         }
         updateLogoMmDisplay();
+        const isBio = !!(refData && refData.bio);
         const bioBadge = document.getElementById('bioBadge');
-        if (bioBadge) { bioBadge.classList.toggle('visible', !!(refData && refData.bio)); }
+        if (bioBadge) { bioBadge.classList.toggle('visible', isBio); }
+        const bioBadgeBack = document.getElementById('bioBadgeBack');
+        if (bioBadgeBack) { bioBadgeBack.classList.toggle('visible', isBio); }
     };
 };
 
@@ -2494,7 +2482,6 @@ window.submit = async function() {
         collection        : collVal || '',
         reference         : refVal  || '',
         taille            : sizeVal || '',
-        tailleDtf         : (selects['selTailleDtf'] && selects['selTailleDtf'].value) || '',
         couleurTshirt     : color.n,
         couleurTshirtHex  : color.h,
         couleurLogoAvant  : logos.front.data && logos.front.data.type === 'atelier'
