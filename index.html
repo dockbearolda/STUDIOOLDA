@@ -1170,8 +1170,9 @@
         <!-- Taille DTF arrière -->
         <div class="card p-5">
             <label class="label ml-1 mb-2 block">Taille DTF arrière</label>
-            <input id="coteLogoAr" class="input" type="text" placeholder="mm" readonly
-                   style="background:var(--card);color:var(--text-2);cursor:default;">
+            <input id="coteLogoAr" class="input" type="text" placeholder="ex : 280 mm"
+                   style="color:var(--text);cursor:text;"
+                   oninput="var el=document.getElementById('rcDTF');if(el)el.textContent=this.value.trim()||'—';">
         </div>
 
         <!-- Note -->
@@ -1206,13 +1207,10 @@
             <div class="aselect" id="selPerso"></div>
         </div>
 
-        <!-- TOTAL (non modifiable) -->
-        <div class="card p-5">
-            <label class="label ml-1 mb-2 block">Total</label>
-            <div id="totalLabel"
-                 style="background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:16px;color:var(--text-2);letter-spacing:-0.022em;cursor:default;user-select:none;">
-                25 €
-            </div>
+        <!-- TOTAL -->
+        <div style="padding:32px 20px 28px;text-align:center;">
+            <div style="font-size:12px;font-weight:600;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Total</div>
+            <div id="totalLabel" style="font-size:36px;font-weight:700;color:#1D1D1F;letter-spacing:-0.04em;user-select:none;">25 €</div>
         </div>
 
         <!-- STATUT -->
@@ -2352,6 +2350,12 @@ window.calcTotal = function() {
     const t = (parseFloat(selects['selPrice'] && selects['selPrice'].value) || 0)
             + (parseFloat(selects['selPerso'] && selects['selPerso'].value) || 0);
     document.getElementById('totalLabel').textContent = t + ' €';
+    /* Sync recap en temps réel */
+    var rcT = document.getElementById('rcTotal');
+    if (rcT) rcT.textContent = t + ' €';
+    var rcDTF = document.getElementById('rcDTF');
+    var dtfInput = document.getElementById('coteLogoAr');
+    if (rcDTF && dtfInput) rcDTF.textContent = dtfInput.value.trim() || '—';
 };
 
 /* ══════════════════════════════════════
