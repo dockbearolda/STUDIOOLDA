@@ -2352,16 +2352,17 @@ async function populateRecap() {
     _t('rcOrderId', orderId);
     _t('rcDate', document.getElementById('orderDate').textContent.trim());
 
-    /* ── QR Code (qrcode-generator) ── */
+    /* ── QR Code → lien direct vers la fiche dashboard ── */
     const qrBox = document.getElementById('rcQrCode');
     qrBox.innerHTML = '';
     try {
+        var qrUrl = 'https://dasholda.up.railway.app/dashboard/commande/' + encodeURIComponent(orderId || 'OLDA');
         var qr = qrcode(0, 'M');
-        qr.addData(orderId || 'OLDA');
+        qr.addData(qrUrl);
         qr.make();
         var qrImg = document.createElement('img');
         qrImg.src = qr.createDataURL(3, 0);
-        qrImg.style.cssText = 'width:100%;height:100%;object-fit:contain;image-rendering:pixelated;';
+        qrImg.style.cssText = 'width:100%;height:100%;object-fit:contain;';
         qrImg.alt = 'QR ' + orderId;
         qrBox.appendChild(qrImg);
     } catch (e) {
@@ -2476,7 +2477,7 @@ async function captureMockup(shirtSvg, sideData, fabricHex, W, H, Q) {
         }
     }
 
-    /* Overlay logo */
+    /* Overlay logo — contain: preserve aspect ratio, center in zone */
     if (sideData && sideData.data) {
         var lx = (sideData.x / 100) * W, ly = (sideData.y / 100) * H;
         var lw = (sideData.w / 100) * W, lh = (sideData.h / 100) * H;
@@ -2490,7 +2491,13 @@ async function captureMockup(shirtSvg, sideData, fabricHex, W, H, Q) {
                 im.onerror = function() { resolve(null); }; im.src = sideData.data.url;
             });
         }
-        if (logoImg) cx.drawImage(logoImg, lx - lw / 2, ly - lh / 2, lw, lh);
+        if (logoImg) {
+            /* contain: fit inside zone while preserving aspect ratio */
+            var nw = logoImg.naturalWidth || lw, nh = logoImg.naturalHeight || lh;
+            var logoScale = Math.min(lw / nw, lh / nh);
+            var dw = nw * logoScale, dh = nh * logoScale;
+            cx.drawImage(logoImg, lx - dw / 2, ly - dh / 2, dw, dh);
+        }
     }
 
     return c.toDataURL('image/jpeg', Q);
