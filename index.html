@@ -1401,9 +1401,24 @@
    ══════════════════════════════════════ */
 const API = "https://script.google.com/macros/s/AKfycbyzeU0tD22L8wZ94PW0f4s1a2LH7fNPhK74RtjcIXs0pWAP59anDV8EYtYlP8WX5iCk/exec";
 
-/* ── Dashboard OLDA ── */
-const DASHBOARD_URL   = 'https://dasholda.up.railway.app';
-const DASHBOARD_TOKEN = "d1e9c4cd170eb57f8ce6254b5aa70b7f708e465d48daefc7f3b0b7e16bd9f4dc";
+/* ── Dashboard OLDA — config dynamique via Railway env vars ── */
+let DASHBOARD_URL   = 'https://dasholda.up.railway.app';
+let DASHBOARD_TOKEN = '';
+
+/* Charge les variables Railway depuis /api/config (server.js lit process.env) */
+(async function loadConfig() {
+    try {
+        var r = await fetch('/api/config');
+        if (r.ok) {
+            var cfg = await r.json();
+            if (cfg.dasholda_url)    DASHBOARD_URL   = cfg.dasholda_url;
+            if (cfg.dashboard_token) DASHBOARD_TOKEN = cfg.dashboard_token;
+            console.info('[Config] DASHOLDA_URL =', DASHBOARD_URL);
+        }
+    } catch (e) {
+        console.warn('[Config] /api/config indisponible, fallback par défaut');
+    }
+})();
 
 const COLORS = [
     /* ── Basiques (les + commandés) ── */
@@ -2374,7 +2389,8 @@ async function populateRecap() {
     const qrBox = document.getElementById('rcQrCode');
     qrBox.innerHTML = '';
     try {
-        var qrUrl = 'https://dasholda.up.railway.app/dashboard/commande/' + encodeURIComponent(orderId || 'OLDA');
+        var qrBase = DASHBOARD_URL || 'https://dasholda.up.railway.app';
+        var qrUrl = qrBase + '/dashboard/commande/' + encodeURIComponent(orderId || 'OLDA');
         var qr = qrcode(0, 'M');
         qr.addData(qrUrl);
         qr.make();
@@ -2548,11 +2564,17 @@ async function fetchWithRetry(url, options, maxRetries) {
 
 /* ══════════════════════════════════════
    DASHBOARD — Envoi commande vers /api/orders
+   URL + Token lus depuis Railway env vars via /api/config
    product_type: 't-shirt', status: 'a-traiter'
    ══════════════════════════════════════ */
 async function sendOrderToDashboard(payload, mockups) {
     var totalNum = parseFloat(payload.total) || 0;
     var orderId  = payload.commande || '';
+
+    /* URL cible : DASHBOARD_URL vient de /api/config (process.env.DASHOLDA_URL) */
+    var baseUrl = DASHBOARD_URL || '';
+    if (baseUrl && !baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+    var apiUrl = baseUrl + '/api/orders';
 
     var orderData = {
         /* ── Identifiant & catégorie ── */
@@ -2582,9 +2604,12 @@ async function sendOrderToDashboard(payload, mockups) {
         total         : totalNum,
 
         /* ── Notes & date ── */
-        date     : payload.date     || '',
-        deadline : payload.deadline || '',
-        notes    : payload.note     || '',
+        date          : payload.date || '',
+        deadline      : payload.deadline || '',
+        notes         : payload.note || '',
+
+        /* ── QR — lien direct vers la fiche ── */
+        ficheUrl      : baseUrl + '/dashboard/commande/' + encodeURIComponent(orderId),
 
         /* ── Items (format standard e-commerce) ── */
         items: [{
@@ -2601,35 +2626,39 @@ async function sendOrderToDashboard(payload, mockups) {
         if (mockups.back)  orderData.mockupBack  = mockups.back;
     }
 
-    var fetchOptions = {
-        method:  'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + DASHBOARD_TOKEN
-        },
-        body: JSON.stringify(orderData)
-        /* Pas de mode: 'no-cors' — on a besoin de lire la réponse et d'envoyer du JSON */
-    };
-
-    console.log('[Dashboard OLDA] Envoi vers https://dasholda.up.railway.app/api/orders',
-                '— commande:', orderId, '— headers:', Object.keys(fetchOptions.headers));
+    console.info('[Dashboard] POST →', apiUrl, '— commande:', orderId);
 
     try {
-        var response = await fetchWithRetry('https://dasholda.up.railway.app/api/orders', fetchOptions, 3);
+        var response = await fetchWithRetry(apiUrl, {
+            method  : 'POST',
+            mode    : 'cors',
+            headers : {
+                'Content-Type'  : 'application/json',
+                'Authorization' : 'Bearer ' + DASHBOARD_TOKEN
+            },
+            body: JSON.stringify(orderData)
+        }, 3);
+
         if (!response.ok) {
-            var body = '';
-            try { body = await response.text(); } catch (_) {}
-            console.error('[Dashboard OLDA] Erreur HTTP', response.status, response.statusText,
-                          '\n→ URL :', 'https://dasholda.up.railway.app/api/orders',
-                          '\n→ Réponse serveur :', body);
-            return { ok: false, error: 'HTTP ' + response.status };
+            var errBody = '';
+            try { errBody = await response.text(); } catch(_) {}
+            console.error('[Dashboard] ERREUR HTTP', response.status, response.statusText,
+                          '\n→ URL :', apiUrl,
+                          '\n→ Réponse serveur :', errBody);
+            if (response.status === 401) console.error('[Dashboard] → Vérifiez DASHBOARD_TOKEN dans les variables Railway');
+            if (response.status === 404) console.error('[Dashboard] → Vérifiez DASHOLDA_URL dans les variables Railway :', baseUrl);
+            return { ok: false, error: 'HTTP ' + response.status + ' — ' + (errBody || response.statusText) };
         }
-        return { ok: true };
+
+        var result = await response.json().catch(function() { return {}; });
+        console.info('[Dashboard] OK — commande transmise :', orderId, result);
+        return { ok: true, data: result };
+
     } catch (e) {
-        console.error('[Dashboard OLDA] Échec après 3 tentatives',
-                      '\n→ URL :', 'https://dasholda.up.railway.app/api/orders',
-                      '\n→ Erreur complète :', e,
-                      '\n→ Type :', e.name, '—', e.message);
+        console.error('[Dashboard] ÉCHEC après 3 tentatives',
+                      '\n→ URL :', apiUrl,
+                      '\n→ Erreur :', e.name, '—', e.message);
+        console.error('[Dashboard] → Vérifiez que DASHOLDA_URL est correct et que le serveur est joignable');
         return { ok: false, error: e.message };
     }
 }
