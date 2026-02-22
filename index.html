@@ -16,6 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script>
     tailwind.config = { theme: { extend: { fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','SF Pro Text','Inter','Helvetica Neue','Helvetica','Arial','sans-serif'] } } } }
     </script>
@@ -1224,116 +1225,94 @@
     </div>
 
     <!-- ════════════════════════════════════════
-         STEP 4 — CARTE RÉCAPITULATIVE
-         Dernière vérification avant envoi à l'atelier
+         STEP 4 — FICHE PRODUIT RÉCAPITULATIVE
+         Style Apple Premium — dernière vérification avant envoi
          ════════════════════════════════════════ -->
     <div id="s4" class="step mt-6">
 
-        <!-- Carte Récapitulative -->
-        <div id="recapCard" style="background:#FFFFFF;border:1px solid #e5e5ea;border-radius:12px;overflow:hidden;font-size:14px;">
+        <div id="recapCard" style="background:#FFFFFF;border:1px solid #e5e5ea;border-radius:12px;overflow:hidden;font-size:14px;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
 
-            <!-- En-tête -->
-            <div style="padding:20px 20px 16px;border-bottom:1px solid #e5e5ea;">
-                <div style="font-size:18px;font-weight:700;color:#1D1D1F;letter-spacing:-0.03em;">Récapitulatif commande</div>
-                <div id="rcOrderId" style="font-size:13px;color:#86868B;margin-top:2px;">—</div>
+            <!-- ── EN-TÊTE + QR CODE ── -->
+            <div style="padding:20px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e5e5ea;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.08em;text-transform:uppercase;">Fiche Atelier</div>
+                    <div id="rcOrderId" style="font-size:20px;font-weight:700;color:#1D1D1F;letter-spacing:-0.03em;margin-top:4px;word-break:break-all;">—</div>
+                    <div id="rcDate" style="font-size:13px;color:#86868B;margin-top:2px;">—</div>
+                </div>
+                <div id="rcQrCode" style="flex-shrink:0;width:72px;height:72px;margin-left:16px;border-radius:8px;overflow:hidden;background:#F5F5F7;"></div>
             </div>
 
-            <!-- Client -->
+            <!-- ── VISUELS TECHNIQUES : Face Avant / Dos ── -->
+            <div style="padding:16px 20px;border-bottom:1px solid #e5e5ea;">
+                <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Visuels techniques</div>
+                <div style="display:flex;gap:12px;">
+                    <!-- Face Avant -->
+                    <div style="flex:1;text-align:center;">
+                        <div id="rcMockupFront" style="width:100%;aspect-ratio:5/6;background:#F5F5F7;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                            <span style="color:#AEAEB2;font-size:12px;font-weight:500;">Chargement...</span>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#86868B;margin-top:6px;letter-spacing:0.02em;">Face Avant</div>
+                    </div>
+                    <!-- Dos -->
+                    <div style="flex:1;text-align:center;">
+                        <div id="rcMockupBack" style="width:100%;aspect-ratio:5/6;background:#F5F5F7;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                            <span style="color:#AEAEB2;font-size:12px;font-weight:500;">Chargement...</span>
+                        </div>
+                        <div style="font-size:11px;font-weight:600;color:#86868B;margin-top:6px;letter-spacing:0.02em;">Dos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CLIENT ── -->
             <div style="padding:16px 20px;border-bottom:1px solid #f2f2f7;">
                 <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Client</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Nom</span>
-                        <span id="rcNom" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Téléphone</span>
-                        <span id="rcTel" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Date</span>
-                        <span id="rcDate" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Deadline</span>
-                        <span id="rcDeadline" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Nom</span><span id="rcNom" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Téléphone</span><span id="rcTel" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Deadline</span><span id="rcDeadline" style="font-weight:600;color:#1D1D1F;">—</span></div>
                 </div>
             </div>
 
-            <!-- Produit -->
+            <!-- ── PRODUIT ── -->
             <div style="padding:16px 20px;border-bottom:1px solid #f2f2f7;">
                 <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Produit</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Collection</span>
-                        <span id="rcCollection" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Référence</span>
-                        <span id="rcRef" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Coloris</span>
-                        <span id="rcCouleur" style="font-weight:600;color:#1D1D1F;display:flex;align-items:center;gap:6px;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Taille</span>
-                        <span id="rcTaille" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Taille DTF arrière</span>
-                        <span id="rcDTF" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Collection</span><span id="rcCollection" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Référence</span><span id="rcRef" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Coloris</span><span id="rcCouleur" style="font-weight:600;color:#1D1D1F;display:flex;align-items:center;gap:6px;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Taille</span><span id="rcTaille" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Taille DTF arrière</span><span id="rcDTF" style="font-weight:600;color:#1D1D1F;">—</span></div>
                 </div>
             </div>
 
-            <!-- Logos -->
+            <!-- ── LOGOS ── -->
             <div style="padding:16px 20px;border-bottom:1px solid #f2f2f7;">
                 <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Logos</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Logo avant</span>
-                        <span id="rcLogoAv" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Couleur logo avant</span>
-                        <span id="rcLogoAvColor" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Logo arrière</span>
-                        <span id="rcLogoAr" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Couleur logo arrière</span>
-                        <span id="rcLogoArColor" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Logo avant</span><span id="rcLogoAv" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Couleur logo avant</span><span id="rcLogoAvColor" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Logo arrière</span><span id="rcLogoAr" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Couleur logo arrière</span><span id="rcLogoArColor" style="font-weight:600;color:#1D1D1F;">—</span></div>
                 </div>
             </div>
 
-            <!-- Notes -->
+            <!-- ── NOTES (conditionnel) ── -->
             <div id="rcNoteSection" style="padding:16px 20px;border-bottom:1px solid #f2f2f7;display:none;">
                 <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Notes</div>
-                <div id="rcNote" style="color:#1D1D1F;line-height:1.4;">—</div>
+                <div id="rcNote" style="color:#1D1D1F;line-height:1.5;font-size:13px;">—</div>
             </div>
 
-            <!-- Paiement -->
+            <!-- ── PAIEMENT ── -->
             <div style="padding:16px 20px;">
                 <div style="font-size:11px;font-weight:700;color:#86868B;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Paiement</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">T-Shirt</span>
-                        <span id="rcPrixTshirt" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#86868B;">Personnalisation</span>
-                        <span id="rcPrixPerso" style="font-weight:600;color:#1D1D1F;">—</span>
-                    </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">T-Shirt</span><span id="rcPrixTshirt" style="font-weight:600;color:#1D1D1F;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#86868B;">Personnalisation</span><span id="rcPrixPerso" style="font-weight:600;color:#1D1D1F;">—</span></div>
                     <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #e5e5ea;">
                         <span style="font-weight:700;color:#1D1D1F;">Total</span>
-                        <span id="rcTotal" style="font-weight:700;font-size:16px;color:#1D1D1F;">—</span>
+                        <span id="rcTotal" style="font-weight:700;font-size:17px;color:#1D1D1F;">—</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                    <div style="display:flex;justify-content:space-between;margin-top:2px;">
                         <span style="color:#86868B;">Statut</span>
                         <span id="rcStatut" style="font-weight:600;">—</span>
                     </div>
@@ -2362,26 +2341,62 @@ window.calcTotal = function() {
 };
 
 /* ══════════════════════════════════════
-   RÉCAPITULATIF — peuple la carte avant envoi
+   RÉCAPITULATIF — peuple la fiche produit avant envoi
    ══════════════════════════════════════ */
-function populateRecap() {
+async function populateRecap() {
     const _t = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || '—'; };
     const logoColorName = (hex, arr) => (arr.find(c => c.h === hex) || { n: hex }).n;
+    const orderId = document.getElementById('orderNo').textContent.trim();
 
-    /* Client */
+    /* ── En-tête ── */
+    _t('rcOrderId', orderId);
+    _t('rcDate', document.getElementById('orderDate').textContent.trim());
+
+    /* ── QR Code (qrcode-generator) ── */
+    const qrBox = document.getElementById('rcQrCode');
+    qrBox.innerHTML = '';
+    try {
+        var qr = qrcode(0, 'M');
+        qr.addData(orderId || 'OLDA');
+        qr.make();
+        var qrImg = document.createElement('img');
+        qrImg.src = qr.createDataURL(3, 0);
+        qrImg.style.cssText = 'width:100%;height:100%;object-fit:contain;image-rendering:pixelated;';
+        qrImg.alt = 'QR ' + orderId;
+        qrBox.appendChild(qrImg);
+    } catch (e) {
+        qrBox.innerHTML = '<span style="font-size:9px;color:#AEAEB2;display:flex;align-items:center;justify-content:center;height:100%;">QR</span>';
+    }
+
+    /* ── Visuels techniques (mockups Face Avant / Dos) ── */
+    const renderMockupTo = async (containerId, shirtSvg, sideData) => {
+        const box = document.getElementById(containerId);
+        if (!box) return;
+        try {
+            const dataUrl = await captureMockup(shirtSvg, sideData, color.h, 400, 480, 0.85);
+            if (dataUrl) {
+                box.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;" alt="Mockup">';
+            } else {
+                box.innerHTML = '<span style="color:#AEAEB2;font-size:11px;">Aperçu indisponible</span>';
+            }
+        } catch (e) {
+            box.innerHTML = '<span style="color:#AEAEB2;font-size:11px;">Aperçu indisponible</span>';
+        }
+    };
+    renderMockupTo('rcMockupFront', svgF, logos.front);
+    renderMockupTo('rcMockupBack',  svgB, logos.back);
+
+    /* ── Client ── */
     const nom = ((document.getElementById('clientNom').value.trim() + ' ' +
                   document.getElementById('clientPrenom').value.trim()).trim()) || '—';
-    _t('rcOrderId', document.getElementById('orderNo').textContent.trim());
     _t('rcNom', nom);
     _t('rcTel', document.getElementById('clientPhone').value.trim());
-    _t('rcDate', document.getElementById('orderDate').textContent.trim());
     _t('rcDeadline', document.getElementById('clientDeadline').value || '—');
 
-    /* Produit */
+    /* ── Produit ── */
     _t('rcCollection', selects['selCollection'] ? selects['selCollection'].label : '');
     _t('rcRef', selects['selRef'] ? selects['selRef'].label : '');
 
-    /* Coloris — nom + pastille */
     const rcCouleur = document.getElementById('rcCouleur');
     if (rcCouleur) {
         const dot = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + color.h + ';border:1px solid #e5e5ea;vertical-align:middle;"></span>';
@@ -2391,7 +2406,7 @@ function populateRecap() {
     _t('rcTaille', selects['selSize'] ? selects['selSize'].value : '');
     _t('rcDTF', (document.getElementById('coteLogoAr').value || '—'));
 
-    /* Logos */
+    /* ── Logos ── */
     const logoAvId  = logos.front.data ? (logos.front.data.type === 'atelier' ? logos.front.data.id : 'Custom') : 'Aucun';
     const logoArId  = logos.back.data  ? (logos.back.data.type  === 'atelier' ? logos.back.data.id  : 'Custom') : 'Aucun';
     const logoAvCol = logos.front.data && logos.front.data.type === 'atelier' ? logoColorName(logos.front.logoColor, LOGO_COLORS) : '—';
@@ -2401,7 +2416,7 @@ function populateRecap() {
     _t('rcLogoAr', logoArId);
     _t('rcLogoArColor', logoArCol);
 
-    /* Notes */
+    /* ── Notes ── */
     const note = (document.getElementById('note').value || '').trim();
     const noteSection = document.getElementById('rcNoteSection');
     if (note) {
@@ -2411,7 +2426,7 @@ function populateRecap() {
         noteSection.style.display = 'none';
     }
 
-    /* Paiement */
+    /* ── Paiement ── */
     const prixT = (selects['selPrice'] && selects['selPrice'].value) || '0';
     const prixP = (selects['selPerso'] && selects['selPerso'].value) || '0';
     const total = parseFloat(prixT) + parseFloat(prixP);
