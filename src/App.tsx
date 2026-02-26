@@ -102,6 +102,7 @@ function AppInner() {
                 onNext={() => goTo('client')}
                 editItem={editItem}
                 onDoneEditing={() => setEditItem(null)}
+                onOpenCart={() => setCartOpen(true)}
               />
             )}
             {step === 'client' && (

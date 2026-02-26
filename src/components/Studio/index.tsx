@@ -37,9 +37,10 @@ interface Props {
   onNext: () => void;
   editItem?: CartItem | null;
   onDoneEditing?: () => void;
+  onOpenCart?: () => void;
 }
 
-export default function Studio({ onNext, editItem, onDoneEditing }: Props) {
+export default function Studio({ onNext, editItem, onDoneEditing, onOpenCart }: Props) {
   const { addItem, updateItem } = useCart();
 
   // ── Product config ──────────────────────────────────
@@ -188,7 +189,10 @@ export default function Studio({ onNext, editItem, onDoneEditing }: Props) {
     addItem(item);
     resetForm();
     setAddedFlash(true);
-    setTimeout(() => setAddedFlash(false), 1500);
+    setTimeout(() => {
+      setAddedFlash(false);
+      onOpenCart?.();
+    }, 800);
   }
 
   // ── Update existing cart item ────────────────────────
