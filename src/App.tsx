@@ -102,6 +102,7 @@ function AppInner() {
                 onNext={() => goTo('client')}
                 editItem={editItem}
                 onDoneEditing={() => setEditItem(null)}
+                onOpenCart={() => setCartOpen(true)}
               />
             )}
             {step === 'client' && (
@@ -117,6 +118,10 @@ function AppInner() {
                 clientInfo={clientInfo}
                 onBack={() => goTo('client')}
                 onEditCart={() => goTo('studio')}
+                onSuccess={() => {
+                  setClientInfo(EMPTY_CLIENT);
+                  goTo('studio');
+                }}
               />
             )}
           </motion.div>
